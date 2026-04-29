@@ -1,4 +1,4 @@
-package edu.eci.patricia.DOWS_patricia.eeveevoiding_responsibilities_campus_events;
+package edu.eci.patricia.DOWS_patricia;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

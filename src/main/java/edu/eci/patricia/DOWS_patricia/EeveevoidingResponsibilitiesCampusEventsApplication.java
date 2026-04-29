@@ -1,9 +1,14 @@
-package edu.eci.patricia.DOWS_patricia.eeveevoiding_responsibilities_campus_events;
+package edu.eci.patricia.DOWS_patricia;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class
+})
 public class EeveevoidingResponsibilitiesCampusEventsApplication {
 
 	public static void main(String[] args) {

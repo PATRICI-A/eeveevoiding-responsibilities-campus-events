@@ -45,17 +45,17 @@
         <sonar.sources>src/main/java</sonar.sources>
         <sonar.tests>src/test/java</sonar.tests>
         <sonar.coverage.exclusions>
-            **/controller/dto/**,
-            **/controller/mapper/**,
-            **/config/**,
-            **/security/**,
-            **/exception/**,
+            **/entrypoints/**/*Dto.java,
+            **/entrypoints/**/*Mapper.java,
+            **/infrastructure/config/**,
+            **/infrastructure/security/**,
+            **/domain/exception/**,
             **/*Application.java
         </sonar.coverage.exclusions>
         <sonar.exclusions>
-            **/controller/mapper/**,
-            **/exception/TechcupException.java,
-            **/security/**,
+            **/entrypoints/**/*Mapper.java,
+            **/infrastructure/security/**,
+            **/domain/exception/**,
             **/*Application.java
         </sonar.exclusions>
 	</properties>
@@ -189,11 +189,11 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/escuela/techcup/controller/dto/**</exclude>
-                        <exclude>com/escuela/techcup/controller/mapper/**</exclude>
-                        <exclude>com/escuela/techcup/config/**</exclude>
-                        <exclude>com/escuela/techcup/core/exception/**</exclude>
-                        <exclude>com/escuela/techcup/**/*Application.class</exclude>
+                        <exclude>edu/eci/patricia/DOWS_patricia/entrypoints/**/*Dto.class</exclude>
+                        <exclude>edu/eci/patricia/DOWS_patricia/entrypoints/**/*Mapper.class</exclude>
+                        <exclude>edu/eci/patricia/DOWS_patricia/infrastructure/config/**</exclude>
+                        <exclude>edu/eci/patricia/DOWS_patricia/domain/exception/**</exclude>
+                        <exclude>edu/eci/patricia/DOWS_patricia/**/*Application.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
