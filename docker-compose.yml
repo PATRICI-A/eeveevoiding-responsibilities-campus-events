@@ -1,0 +1,21 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: campus-events-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  app:
+    build: .
+    container_name: campus-events-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/campus-events
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
