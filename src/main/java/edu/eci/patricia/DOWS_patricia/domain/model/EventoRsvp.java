@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 @Document(collection = "event_rsvp")
 public class EventoRsvp {
 
-    public enum EstadoRsvp { CONFIRMADO, CANCELADO }
-
     @Id
     private String id;
     private String eventoId;

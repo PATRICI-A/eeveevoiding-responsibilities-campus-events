@@ -33,7 +33,7 @@ class EventoControllerTest {
     @Test
     @DisplayName("Como estudiante, debo poder acceder al feed de eventos sin error")
     void consultarFeed_sinFiltros_retorna200() throws Exception {
-        when(eventoService.obtenerFeed(any(), any())).thenReturn(List.of());
+        when(eventoService.obtenerFeed(any())).thenReturn(List.of());
 
         mockMvc.perform(get("/api/v1/eventos"))
                 .andExpect(status().isOk());
@@ -49,7 +49,7 @@ class EventoControllerTest {
                 .fechaHora(LocalDateTime.now().plusDays(1))
                 .estado(EstadoEvento.ACTIVO)
                 .build();
-        when(eventoService.obtenerFeed(any(), any())).thenReturn(List.of(evento));
+        when(eventoService.obtenerFeed(any())).thenReturn(List.of(evento));
 
         mockMvc.perform(get("/api/v1/eventos").param("categoria", "CULTURAL"))
                 .andExpect(status().isOk());

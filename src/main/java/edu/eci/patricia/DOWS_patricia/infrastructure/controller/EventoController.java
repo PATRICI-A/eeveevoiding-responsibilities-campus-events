@@ -5,27 +5,24 @@ import edu.eci.patricia.DOWS_patricia.domain.model.CategoriaEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.Evento;
 import edu.eci.patricia.DOWS_patricia.infrastructure.dto.EventoResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/eventos")
 @RequiredArgsConstructor
-@Tag(name = "Eventos Universitarios", description = "Feed oficial de eventos académicos, culturales y deportivos del campus")
+@Tag(name = "Eventos Universitarios", description = "Feed oficial de eventos del campus")
 public class EventoController {
 
     private final EventoService eventoService;
@@ -42,12 +39,9 @@ public class EventoController {
         @ApiResponse(responseCode = "401", description = "Token JWT inválido o ausente", content = @Content)
     })
     public ResponseEntity<List<EventoResponse>> consultarFeed(
-            @Parameter(description = "Filtrar por categoría: ACADEMICO, CULTURAL, DEPORTIVO, BIENESTAR")
-            @RequestParam(required = false) CategoriaEvento categoria,
-            @Parameter(description = "Filtrar por fecha (formato: yyyy-MM-dd)")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+            @RequestParam(required = false) CategoriaEvento categoria) {
 
-        List<Evento> eventos = eventoService.obtenerFeed(categoria, fecha);
+        List<Evento> eventos = eventoService.obtenerFeed(categoria);
         List<EventoResponse> response = eventos.stream()
                 .map(this::toResponse)
                 .toList();

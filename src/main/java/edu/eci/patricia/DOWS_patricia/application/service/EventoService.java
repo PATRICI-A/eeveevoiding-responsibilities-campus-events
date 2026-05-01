@@ -7,7 +7,6 @@ import edu.eci.patricia.DOWS_patricia.domain.repository.EventoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -16,12 +15,9 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
 
-    public List<Evento> obtenerFeed(CategoriaEvento categoria, LocalDate fecha) {
+    public List<Evento> obtenerFeed(CategoriaEvento categoria) {
         if (categoria != null) {
-            return eventoRepository.findByEstadoAndCategoria(EstadoEvento.ACTIVO, categoria);
-        }
-        if (fecha != null) {
-            return eventoRepository.findByEstadoAndFechaHora(EstadoEvento.ACTIVO, fecha.atStartOfDay());
+            return eventoRepository.findByEstadoAndCategoriaOrderByFechaHoraAsc(EstadoEvento.ACTIVO, categoria);
         }
         return eventoRepository.findByEstadoOrderByFechaHoraAsc(EstadoEvento.ACTIVO);
     }

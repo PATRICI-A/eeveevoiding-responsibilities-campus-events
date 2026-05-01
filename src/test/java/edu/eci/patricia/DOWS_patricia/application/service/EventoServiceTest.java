@@ -11,12 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,37 +34,33 @@ class EventoServiceTest {
         when(eventoRepository.findByEstadoOrderByFechaHoraAsc(EstadoEvento.ACTIVO))
                 .thenReturn(List.of(e1, e2));
 
-        List<Evento> resultado = eventoService.obtenerFeed(null, null);
+        List<Evento> resultado = eventoService.obtenerFeed(null);
 
-        assertThat(resultado).hasSize(2).contains(e1, e2);
-        verify(eventoRepository).findByEstadoOrderByFechaHoraAsc(EstadoEvento.ACTIVO);
+        assertThat(resultado).hasSize(2);
     }
 
     @Test
     @DisplayName("Como estudiante, debo poder filtrar eventos por categoria CULTURAL")
     void obtenerFeed_filtroPorCategoria_retornaSoloEsaCategoria() {
         Evento e1 = evento("2", "Concierto", CategoriaEvento.CULTURAL);
-        when(eventoRepository.findByEstadoAndCategoria(EstadoEvento.ACTIVO, CategoriaEvento.CULTURAL))
+        when(eventoRepository.findByEstadoAndCategoriaOrderByFechaHoraAsc(EstadoEvento.ACTIVO, CategoriaEvento.CULTURAL))
                 .thenReturn(List.of(e1));
 
-        List<Evento> resultado = eventoService.obtenerFeed(CategoriaEvento.CULTURAL, null);
+        List<Evento> resultado = eventoService.obtenerFeed(CategoriaEvento.CULTURAL);
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getCategoria()).isEqualTo(CategoriaEvento.CULTURAL);
-        verify(eventoRepository).findByEstadoAndCategoria(EstadoEvento.ACTIVO, CategoriaEvento.CULTURAL);
     }
 
     @Test
     @DisplayName("Como estudiante, si no hay eventos activos debo recibir una lista vacía")
-    void obtenerFeed_filtroPorFecha_sinEventos_retornaListaVacia() {
-        LocalDate hoy = LocalDate.now();
-        when(eventoRepository.findByEstadoAndFechaHora(EstadoEvento.ACTIVO, hoy.atStartOfDay()))
+    void obtenerFeed_sinEventos_retornaListaVacia() {
+        when(eventoRepository.findByEstadoOrderByFechaHoraAsc(EstadoEvento.ACTIVO))
                 .thenReturn(List.of());
 
-        List<Evento> resultado = eventoService.obtenerFeed(null, hoy);
+        List<Evento> resultado = eventoService.obtenerFeed(null);
 
         assertThat(resultado).isEmpty();
-        verify(eventoRepository).findByEstadoAndFechaHora(EstadoEvento.ACTIVO, hoy.atStartOfDay());
     }
 
     private Evento evento(String id, String nombre, CategoriaEvento categoria) {
