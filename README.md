@@ -21,22 +21,14 @@ Microservicio del sistema **PATRICI.A** para la gestión y consulta del feed de 
 
 ## Diagrama de componentes
 
-<!-- Insertar aquí el diagrama de componentes -->
-<!-- Recomendado: imagen exportada desde Draw.io en formato PNG o SVG -->
-<!-- Ejemplo: ![Diagrama de componentes](docs/diagrams/components.png) -->
-
-> 🔧 *Pendiente — se agrega al finalizar el Sprint 1.*
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/develop/docs/images/DiagramaComponentes%20Eventos.png)
  
 ---
 
 ## Diagrama de clases
 
-<!-- Insertar aquí el diagrama de clases del dominio -->
-<!-- Recomendado: imagen exportada desde Draw.io en formato PNG o SVG -->
-<!-- Ejemplo: ![Diagrama de clases](docs/diagrams/classes.png) -->
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/develop/docs/images/DiagramaClases%20Eventos.png)
 
-> 🔧 *Pendiente — se agrega al finalizar el Sprint 1.*
- 
 ---
 
 ## Endpoints
