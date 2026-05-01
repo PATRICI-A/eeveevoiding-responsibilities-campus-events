@@ -15,6 +15,18 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok' --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 10s
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,6 +46,8 @@ jobs:
 
       - name: Build and run tests with coverage
         run: mvn clean verify
+        env:
+          SPRING_DATA_MONGODB_URI: mongodb://localhost:27017/campus-events-test
 
       - name: Upload test reports
         if: always()
