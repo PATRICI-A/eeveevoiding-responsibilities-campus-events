@@ -12,4 +12,5 @@ COPY --from=build /app/target/*.jar app.jar
 RUN mkdir -p logs && chown -R campusevents:campusevents /app
 USER campusevents
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
