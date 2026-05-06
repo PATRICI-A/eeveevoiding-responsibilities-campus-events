@@ -1,7 +1,7 @@
 package edu.eci.patricia.DOWS_patricia.application.service;
 
-import edu.eci.patricia.DOWS_patricia.domain.model.CategoriaEvento;
-import edu.eci.patricia.DOWS_patricia.domain.model.EstadoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.Evento;
 import edu.eci.patricia.DOWS_patricia.domain.repository.EventoRepository;
 import org.junit.jupiter.api.DisplayName;

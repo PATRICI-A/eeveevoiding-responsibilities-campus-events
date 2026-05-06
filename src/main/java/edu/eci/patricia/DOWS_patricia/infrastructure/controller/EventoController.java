@@ -1,7 +1,7 @@
 package edu.eci.patricia.DOWS_patricia.infrastructure.controller;
 
 import edu.eci.patricia.DOWS_patricia.application.service.EventoService;
-import edu.eci.patricia.DOWS_patricia.domain.model.CategoriaEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.Evento;
 import edu.eci.patricia.DOWS_patricia.infrastructure.dto.EventoResponse;
 import io.swagger.v3.oas.annotations.Operation;

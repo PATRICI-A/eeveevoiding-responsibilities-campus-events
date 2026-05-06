@@ -1,5 +1,6 @@
 package edu.eci.patricia.DOWS_patricia.domain.model;
 
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoRsvp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

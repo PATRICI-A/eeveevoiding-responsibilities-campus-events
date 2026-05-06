@@ -1,9 +1,9 @@
 package edu.eci.patricia.DOWS_patricia.infrastructure.config;
 
-import edu.eci.patricia.DOWS_patricia.domain.model.CategoriaEvento;
-import edu.eci.patricia.DOWS_patricia.domain.model.EstadoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.Evento;
-import edu.eci.patricia.DOWS_patricia.domain.model.TipoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.TipoEvento;
 import edu.eci.patricia.DOWS_patricia.domain.repository.EventoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

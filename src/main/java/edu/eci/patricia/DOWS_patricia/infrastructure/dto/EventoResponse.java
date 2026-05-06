@@ -1,8 +1,8 @@
 package edu.eci.patricia.DOWS_patricia.infrastructure.dto;
 
-import edu.eci.patricia.DOWS_patricia.domain.model.CategoriaEvento;
-import edu.eci.patricia.DOWS_patricia.domain.model.EstadoEvento;
-import edu.eci.patricia.DOWS_patricia.domain.model.TipoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.TipoEvento;
 import lombok.Data;
 
 import java.time.LocalDateTime;

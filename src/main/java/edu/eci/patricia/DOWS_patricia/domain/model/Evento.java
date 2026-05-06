@@ -1,5 +1,8 @@
 package edu.eci.patricia.DOWS_patricia.domain.model;
 
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoEvento;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.TipoEvento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
