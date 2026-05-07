@@ -4,7 +4,7 @@ import edu.eci.patricia.DOWS_patricia.domain.model.enums.CategoriaEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EstadoEvento;
 import edu.eci.patricia.DOWS_patricia.domain.model.Evento;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.TipoEvento;
-import edu.eci.patricia.DOWS_patricia.domain.repository.EventoRepository;
+import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
