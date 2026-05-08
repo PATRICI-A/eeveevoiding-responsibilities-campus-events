@@ -1,17 +1,12 @@
-package edu.eci.patricia.DOWS_patricia.domain.model;
-
-
+package edu.eci.patricia.DOWS_patricia.application.dto.request;
 
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
-import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
@@ -19,10 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Event {
-
-    @Id
-    private EventId id;
+public class EventRequest {
     private String name;
     private String description;
     private LocalDateTime dateTime;
@@ -30,8 +22,5 @@ public class Event {
     private EventCategory category;
     private EventType type;
     private Integer maxCapacity;
-    private Integer availableSpots;
-    private OrganizerId organizerId;
-    private EventStatus status;
-    private LocalDateTime createdAt;
+    private String organizerId;
 }

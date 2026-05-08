@@ -15,7 +15,7 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
 
-    public List<Evento> obtenerFeed(CategoriaEvento categoria) {
+    public List<Event> obtenerFeed(CategoriaEvento categoria) {
         if (categoria != null) {
             return eventoRepository.findByEstadoAndCategoriaOrderByFechaHoraAsc(EstadoEvento.ACTIVO, categoria);
         }

@@ -1,11 +1,13 @@
 package edu.eci.patricia.DOWS_patricia.domain.valueobjects;
 
+import edu.eci.patricia.DOWS_patricia.domain.exceptions.InvalidEventException;
+
 public final class StudentId {
     private final String value;
 
     public StudentId(String value) {
         if (value == null || value.isBlank())
-            throw new IllegalArgumentException("StudentId cannot be empty");
+            throw new InvalidEventException("StudentId cannot be empty");
         this.value = value;
     }
 

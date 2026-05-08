@@ -1,6 +1,8 @@
 package edu.eci.patricia.DOWS_patricia.domain.valueobjects;
 
 
+import edu.eci.patricia.DOWS_patricia.domain.exceptions.InvalidEventException;
+
 import java.util.UUID;
 
 public final class EventId {
@@ -8,7 +10,7 @@ public final class EventId {
 
     public EventId(String value) {
         if (value == null || value.isBlank())
-            throw new IllegalArgumentException("EventId cannot be empty");
+            throw new InvalidEventException("EventId cannot be empty");
         this.value = value;
     }
 
