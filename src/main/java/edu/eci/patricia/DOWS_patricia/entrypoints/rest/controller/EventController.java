@@ -4,7 +4,6 @@ import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequest;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelEventPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateEventPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.GetEventByIdPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.GetEventsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

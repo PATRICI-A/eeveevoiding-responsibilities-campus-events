@@ -7,7 +7,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelEventPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateEventPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.GetEventByIdPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.GetEventsPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
