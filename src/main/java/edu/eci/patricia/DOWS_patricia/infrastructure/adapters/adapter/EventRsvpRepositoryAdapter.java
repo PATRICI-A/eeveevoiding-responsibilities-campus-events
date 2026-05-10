@@ -19,12 +19,12 @@ public class EventRsvpRepositoryAdapter implements EventRsvpRepositoryPort {
 
     @Override
     public EventRsvp save(EventRsvp rsvp) {
-        return mapper.toDomain(mongoRepository.save(mapper.toEntity(rsvp)));
+        return mapper.toModel(mongoRepository.save(mapper.toEntity(rsvp)));
     }
 
     @Override
     public Optional<EventRsvp> findById(RsvpId id) {
         return mongoRepository.findById(id.getValue())
-                .map(mapper::toDomain);
+                .map(mapper::toModel);
     }
 }

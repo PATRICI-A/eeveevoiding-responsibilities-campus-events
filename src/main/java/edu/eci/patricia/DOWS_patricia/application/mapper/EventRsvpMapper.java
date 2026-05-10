@@ -13,12 +13,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EventRsvpMapper {
 
-
     @Mapping(source = "id", target = "id")
     EventResponseRsvp toDTO(EventRsvp eventRsvp);
 
     @Mapping(source = "id", target = "id")
-    EventRsvp toEntity(EventResponseRsvp dto);
+    EventRsvp toModel(EventResponseRsvp dto);
 
     default String rsvpIdToString(RsvpId rsvpId) {
         return rsvpId != null ? rsvpId.getValue() : null;

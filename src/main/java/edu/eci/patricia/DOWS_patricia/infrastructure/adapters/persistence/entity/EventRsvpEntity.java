@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -16,10 +17,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "event_rsvp")
 public class EventRsvpEntity {
+
     @Id
     private String id;
+
+    @Field("eventId")
     private String eventId;
+
+    @Field("studentId")
     private String studentId;
-    private LocalDateTime confirmedAt;
+
+    @Field("status")
     private RsvpStatus status;
 }

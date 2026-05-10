@@ -3,42 +3,29 @@ package edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.mappe
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.entity.EventEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 
-@Component
-public class EventPersistenceMapper {
+import java.util.UUID;
 
-    public EventEntity toEntity(Event event) {
-        return EventEntity.builder()
-                .id(event.getId().getValue())
-                .name(event.getName())
-                .description(event.getDescription())
-                .dateTime(event.getDateTime())
-                .location(event.getLocation())
-                .category(event.getCategory())
-                .type(event.getType())
-                .maxCapacity(event.getMaxCapacity())
-                .availableSpots(event.getAvailableSpots())
-                .organizerId(event.getOrganizerId().getValue())
-                .status(event.getStatus())
-                .createdAt(event.getCreatedAt())
-                .build();
+@Mapper(componentModel = "spring")
+public interface EventPersistenceMapper {
+
+    @Mapping(source = "id", target = "id")
+    EventEntity toEntity(Event event);
+
+    @Mapping(source = "id", target = "id")
+    Event toModel(EventEntity entity);
+
+
+    default UUID eventIdToUUID(EventId eventId) {
+        return eventId != null ? UUID.fromString(eventId.getValue()) : null;
     }
 
-    public Event toDomain(EventEntity entity) {
-        return Event.builder()
-                .id(new EventId(entity.getId()))
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .dateTime(entity.getDateTime())
-                .location(entity.getLocation())
-                .category(entity.getCategory())
-                .type(entity.getType())
-                .maxCapacity(entity.getMaxCapacity())
-                .availableSpots(entity.getAvailableSpots())
-                .organizerId(new OrganizerId(entity.getOrganizerId()))
-                .status(entity.getStatus())
-                .createdAt(entity.getCreatedAt())
-                .build();
+    default EventId uuidToEventId(UUID id) {
+        return id != null ? new EventId(id.toString()) : null;
     }
+
+
 }

@@ -21,20 +21,20 @@ public class EventRepositoryAdapter implements EventRepositoryPort {
 
     @Override
     public Event save(Event event) {
-        return mapper.toDomain(mongoRepository.save(mapper.toEntity(event)));
+        return mapper.toModel(mongoRepository.save(mapper.toEntity(event)));
     }
 
     @Override
     public Optional<Event> findById(EventId id) {
         return mongoRepository.findById(id.getValue())
-                .map(mapper::toDomain);
+                .map(mapper::toModel);
     }
 
     @Override
     public List<Event> findAll() {
         return mongoRepository.findAll()
                 .stream()
-                .map(mapper::toDomain)
+                .map(mapper::toModel)
                 .collect(Collectors.toList());
     }
 

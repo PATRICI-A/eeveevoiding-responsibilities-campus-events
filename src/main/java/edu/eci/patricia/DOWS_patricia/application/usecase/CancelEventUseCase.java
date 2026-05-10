@@ -30,6 +30,6 @@ public class CancelEventUseCase implements CancelEventPort {
 
         event.setStatus(EventStatus.CANCELLED);
         Event saved = eventRepository.save(event);
-        return eventMapper.toResponse(saved);
+        return eventMapper.toDTO(saved);
     }
 }

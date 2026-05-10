@@ -23,8 +23,8 @@ public class CreateEventUseCase implements CreateEventPort {
             throw new EventAlreadyExistsException("Event with name '" + request.getName() + "' already exists");
         }
 
-        Event event = eventMapper.toDomain(request);
+        Event event = eventMapper.toModel(request);
         Event saved = eventRepository.save(event);
-        return eventMapper.toResponse(saved);
+        return eventMapper.toDTO(saved);
     }
 }

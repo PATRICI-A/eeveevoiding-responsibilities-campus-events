@@ -9,8 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -18,17 +20,34 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "events")
 public class EventEntity {
+
     @Id
-    private String id;
+    private UUID id;
+
+    @Field("name")
     private String name;
+
+    @Field("description")
     private String description;
+
+    @Field("date_time")
     private LocalDateTime dateTime;
+
+    @Field("location")
     private String location;
+
+    @Field("category")
     private EventCategory category;
+
+    @Field("type")
     private EventType type;
-    private Integer maxCapacity;
-    private Integer availableSpots;
-    private String organizerId;
+
+    @Field("available_capacity")
+    private Integer availableCapacity;
+
+    @Field("status")
     private EventStatus status;
-    private LocalDateTime createdAt;
+
+    @Field("organizer_id")
+    private String organizerId;
 }

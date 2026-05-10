@@ -1,6 +1,7 @@
 package edu.eci.patricia.DOWS_patricia.application.mapper;
 
 
+import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequest;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
@@ -14,7 +15,7 @@ public interface EventMapper {
     EventResponse toDTO(Event event);
 
     @Mapping(source = "id", target = "id")
-    Event toEntity(EventResponse dto);
+    Event toModel(EventRequest dto);
 
     default String eventIdToString(EventId eventId) {
         return eventId != null ? eventId.getValue() : null;

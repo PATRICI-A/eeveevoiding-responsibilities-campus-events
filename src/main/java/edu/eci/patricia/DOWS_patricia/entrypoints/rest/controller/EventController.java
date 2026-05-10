@@ -19,7 +19,6 @@ public class EventController {
 
     private final CreateEventPort createEventPort;
     private final CancelEventPort cancelEventPort;
-    private final GetEventByIdPort getEventByIdPort;
     private final GetEventsPort getEventsPort;
 
     @PostMapping
@@ -32,10 +31,7 @@ public class EventController {
         return ResponseEntity.ok(cancelEventPort.execute(id));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventResponse> getEventById(@PathVariable String id) {
-        return ResponseEntity.ok(getEventByIdPort.execute(id));
-    }
+
 
     @GetMapping
     public ResponseEntity<List<EventResponse>> getEvents() {
