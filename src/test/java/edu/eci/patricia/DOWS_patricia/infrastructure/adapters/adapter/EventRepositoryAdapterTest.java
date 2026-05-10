@@ -5,7 +5,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.entity.EventEntity;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.mapper.EventPersistenceMapper;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.repository.EventMongoRepository;

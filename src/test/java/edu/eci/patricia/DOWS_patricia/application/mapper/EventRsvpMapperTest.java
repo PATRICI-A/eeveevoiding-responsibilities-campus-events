@@ -6,7 +6,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.EventRsvp;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.RsvpStatus;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.RsvpId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.StudentId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

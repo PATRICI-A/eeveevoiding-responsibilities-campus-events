@@ -5,7 +5,6 @@ import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 
 import org.springframework.stereotype.Component;
 

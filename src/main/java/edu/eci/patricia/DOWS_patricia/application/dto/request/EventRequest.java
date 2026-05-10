@@ -2,7 +2,6 @@ package edu.eci.patricia.DOWS_patricia.application.dto.request;
 
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

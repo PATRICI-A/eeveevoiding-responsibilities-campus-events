@@ -8,7 +8,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

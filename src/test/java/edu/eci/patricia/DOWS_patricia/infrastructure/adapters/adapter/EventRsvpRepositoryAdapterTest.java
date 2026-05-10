@@ -4,7 +4,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.EventRsvp;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.RsvpStatus;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.RsvpId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.StudentId;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.entity.EventRsvpEntity;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.mapper.EventRsvpPersistenceMapper;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.repository.EventRsvpMongoRepository;

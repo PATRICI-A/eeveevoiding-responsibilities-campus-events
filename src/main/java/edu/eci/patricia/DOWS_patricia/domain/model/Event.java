@@ -6,7 +6,6 @@ import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,9 +28,6 @@ public class Event {
     private String location;
     private EventCategory category;
     private EventType type;
-    private Integer maxCapacity;
-    private Integer availableSpots;
-    private OrganizerId organizerId;
+    private Integer availableCapacity;
     private EventStatus status;
-    private LocalDateTime createdAt;
 }

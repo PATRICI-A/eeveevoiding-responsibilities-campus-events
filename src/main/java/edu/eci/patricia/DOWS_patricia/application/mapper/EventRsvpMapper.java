@@ -5,7 +5,6 @@ import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp
 import edu.eci.patricia.DOWS_patricia.domain.model.EventRsvp;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.RsvpId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.StudentId;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

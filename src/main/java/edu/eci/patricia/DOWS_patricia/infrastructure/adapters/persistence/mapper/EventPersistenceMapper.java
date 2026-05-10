@@ -2,7 +2,6 @@ package edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.mappe
 
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.OrganizerId;
 import edu.eci.patricia.DOWS_patricia.infrastructure.adapters.persistence.entity.EventEntity;
 import org.springframework.stereotype.Component;
 
