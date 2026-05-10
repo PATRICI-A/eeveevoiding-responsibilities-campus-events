@@ -20,6 +20,6 @@ public class EventRequest {
     private String location;
     private EventCategory category;
     private EventType type;
-    private Integer maxCapacity;
-    private String organizerId;
+    private Integer availableCapacity;
 }
+

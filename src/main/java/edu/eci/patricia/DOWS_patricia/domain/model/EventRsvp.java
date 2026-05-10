@@ -15,15 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "event_rsvp")
 public class EventRsvp {
     private RsvpId id;
     private EventId eventId;
     private String studentId;
     private RsvpStatus status;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
-
 }
 
 

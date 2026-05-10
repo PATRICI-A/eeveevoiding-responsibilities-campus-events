@@ -17,6 +17,5 @@ public class EventResponseRsvp {
     private String id;
     private String eventId;
     private String studentId;
-    private LocalDateTime confirmedAt;
     private RsvpStatus status;
 }

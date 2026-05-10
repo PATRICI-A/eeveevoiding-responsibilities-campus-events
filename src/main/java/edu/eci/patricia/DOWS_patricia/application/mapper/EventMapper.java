@@ -1,49 +1,26 @@
 package edu.eci.patricia.DOWS_patricia.application.mapper;
 
-import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequest;
+
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
-import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import org.springframework.stereotype.Component;
+@Mapper(componentModel = "spring")
+public interface EventMapper {
 
-import java.time.LocalDateTime;
+    @Mapping(source = "id", target = "id")
+    EventResponse toDTO(Event event);
 
-@Component
-public class EventMapper {
+    @Mapping(source = "id", target = "id")
+    Event toEntity(EventResponse dto);
 
-    public Event toDomain(EventRequest request) {
-        return Event.builder()
-                .id(EventId.generate())
-                .name(request.getName())
-                .description(request.getDescription())
-                .dateTime(request.getDateTime())
-                .location(request.getLocation())
-                .category(request.getCategory())
-                .type(request.getType())
-                .maxCapacity(request.getMaxCapacity())
-                .availableSpots(request.getMaxCapacity())
-                .organizerId(new OrganizerId(request.getOrganizerId()))
-                .status(EventStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .build();
+    default String eventIdToString(EventId eventId) {
+        return eventId != null ? eventId.getValue() : null;
     }
 
-    public EventResponse toResponse(Event event) {
-        return EventResponse.builder()
-                .id(event.getId().getValue())
-                .name(event.getName())
-                .description(event.getDescription())
-                .dateTime(event.getDateTime())
-                .location(event.getLocation())
-                .category(event.getCategory())
-                .type(event.getType())
-                .maxCapacity(event.getMaxCapacity())
-                .availableSpots(event.getAvailableSpots())
-                .organizerId(event.getOrganizerId().getValue())
-                .status(event.getStatus())
-                .createdAt(event.getCreatedAt())
-                .build();
+    default EventId stringToEventId(String id) {
+        return id != null ? new EventId(id) : null;
     }
 }

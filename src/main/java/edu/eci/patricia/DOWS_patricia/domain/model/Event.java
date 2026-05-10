@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Event {
 
-    @Id
     private EventId id;
     private String name;
     private String description;

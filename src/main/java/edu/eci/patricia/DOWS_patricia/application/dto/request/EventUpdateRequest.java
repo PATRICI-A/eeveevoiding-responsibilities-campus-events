@@ -1,21 +1,19 @@
-package edu.eci.patricia.DOWS_patricia.application.dto.response;
+package edu.eci.patricia.DOWS_patricia.application.dto.request;
 
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
-import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventResponse {
-    private String id;
+public class EventUpdateRequest {
     private String name;
     private String description;
     private LocalDateTime dateTime;
@@ -23,5 +21,4 @@ public class EventResponse {
     private EventCategory category;
     private EventType type;
     private Integer availableCapacity;
-    private EventStatus status;
 }

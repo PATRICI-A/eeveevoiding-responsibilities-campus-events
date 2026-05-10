@@ -1,34 +1,31 @@
 package edu.eci.patricia.DOWS_patricia.application.mapper;
 
-import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequestRsvp;
+
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
+
 import edu.eci.patricia.DOWS_patricia.domain.model.EventRsvp;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.DOWS_patricia.domain.valueobjects.RsvpId;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.time.LocalDateTime;
 
-@Component
-public class EventRsvpMapper {
+@Mapper(componentModel = "spring")
+public interface EventRsvpMapper {
 
-    public EventRsvp toDomain(EventRequestRsvp request) {
-        return EventRsvp.builder()
-                .id(RsvpId.generate())
-                .eventId(new EventId(request.getEventId()))
-                .studentId(new StudentId(request.getStudentId()))
-                .confirmedAt(LocalDateTime.now())
-                .status(request.getStatus())
-                .build();
+
+    @Mapping(source = "id", target = "id")
+    EventResponseRsvp toDTO(EventRsvp eventRsvp);
+
+    @Mapping(source = "id", target = "id")
+    EventRsvp toEntity(EventResponseRsvp dto);
+
+    default String rsvpIdToString(RsvpId rsvpId) {
+        return rsvpId != null ? rsvpId.getValue() : null;
     }
 
-    public EventResponseRsvp toResponse(EventRsvp rsvp) {
-        return EventResponseRsvp.builder()
-                .id(rsvp.getId().getValue())
-                .eventId(rsvp.getEventId().getValue())
-                .studentId(rsvp.getStudentId().getValue())
-                .confirmedAt(rsvp.getConfirmedAt())
-                .status(rsvp.getStatus())
-                .build();
+    default RsvpId stringToRsvpId(String id) {
+        return id != null ? new RsvpId(id) : null;
     }
+
 }
