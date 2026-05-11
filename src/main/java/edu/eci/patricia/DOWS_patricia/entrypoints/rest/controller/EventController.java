@@ -6,12 +6,7 @@ import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequestRsvp;
 import edu.eci.patricia.DOWS_patricia.application.dto.request.EventUpdateRequest;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelEventPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelRsvpPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateEventPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateRsvpPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.GetEventsPort;
-import edu.eci.patricia.DOWS_patricia.domain.ports.in.UpdateEventPort;
+import edu.eci.patricia.DOWS_patricia.domain.ports.in.*;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.RsvpAction;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +27,7 @@ public class EventController {
     private final GetEventsPort getEventsPort;
     private final UpdateEventPort updateEventPort;
     private final CancelEventPort cancelEventPort;
+    private final GetEventByIdPort getEventByIdPort;
 
     @PostMapping
     public ResponseEntity<EventResponse> create(
@@ -41,10 +38,12 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAll(
-            @Valid EventFeedRequest filters) {
-        return ResponseEntity.ok(
-                getEventsPort.execute(filters.getCategory(), filters.getDate()));
+    public ResponseEntity<?> getAll(@Valid EventFeedRequest filters) {
+        List<EventResponse> events = getEventsPort.execute(filters.getCategory(), filters.getDate());
+        if (events.isEmpty()) {
+            return ResponseEntity.ok(Map.of("message", "No events available at this time"));
+        }
+        return ResponseEntity.ok(events);
     }
 
     @PutMapping("/{eventId}")
@@ -53,6 +52,11 @@ public class EventController {
             @Valid @RequestBody EventUpdateRequest request,
             @RequestHeader("X-User-Id") UUID organizerId) {
         return ResponseEntity.ok(updateEventPort.execute(eventId, request, organizerId));
+    }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponse> getById(@PathVariable UUID eventId) {
+        return ResponseEntity.ok(getEventByIdPort.execute(eventId));
     }
 
     @DeleteMapping("/{eventId}")
