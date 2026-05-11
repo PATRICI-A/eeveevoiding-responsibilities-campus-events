@@ -33,6 +33,9 @@ public class EventEntity {
     @Field("date_time")
     private LocalDateTime dateTime;
 
+    @Field("duration_minutes")
+    private Integer durationMinutes;
+
     @Field("location")
     private String location;
 
@@ -42,6 +45,9 @@ public class EventEntity {
     @Field("type")
     private EventType type;
 
+    @Field("max_capacity")
+    private Integer maxCapacity;
+
     @Field("available_capacity")
     private Integer availableCapacity;
 
@@ -49,5 +55,14 @@ public class EventEntity {
     private EventStatus status;
 
     @Field("organizer_id")
-    private String organizerId;
+    private UUID organizerId;
+
+    @Field("qr_code")
+    private String qrCode;
+
+    @Field("created_at")
+    private LocalDateTime createdAt;
+
+    @Field("updated_at")
+    private LocalDateTime updatedAt;
 }

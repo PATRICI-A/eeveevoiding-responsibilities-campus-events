@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -19,14 +20,20 @@ import java.time.LocalDateTime;
 public class EventRsvpEntity {
 
     @Id
-    private String id;
+    private UUID id;
 
-    @Field("eventId")
-    private String eventId;
+    @Field("event_id")
+    private UUID eventId;
 
-    @Field("studentId")
-    private String studentId;
+    @Field("student_id")
+    private UUID studentId;
 
     @Field("status")
     private RsvpStatus status;
+
+    @Field("confirmed_at")
+    private LocalDateTime confirmedAt;
+
+    @Field("cancelled_at")
+    private LocalDateTime cancelledAt;
 }
