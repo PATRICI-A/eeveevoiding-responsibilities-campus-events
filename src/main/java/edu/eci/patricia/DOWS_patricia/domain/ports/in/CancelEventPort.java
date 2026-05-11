@@ -1,7 +1,7 @@
 package edu.eci.patricia.DOWS_patricia.domain.ports.in;
 
-import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponse;
+import java.util.UUID;
 
 public interface CancelEventPort {
-    EventResponse execute(String id,String organizerId);
+    void execute(UUID eventId, UUID organizerId);
 }

@@ -2,6 +2,9 @@ package edu.eci.patricia.DOWS_patricia.domain.ports.in;
 
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
 
+import java.util.UUID;
+
 public interface CancelRsvpPort {
-    EventResponseRsvp execute(String id);
+    void execute(UUID eventId, UUID studentId);
 }
+
