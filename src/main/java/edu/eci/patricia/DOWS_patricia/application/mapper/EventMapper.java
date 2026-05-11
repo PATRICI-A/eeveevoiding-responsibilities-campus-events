@@ -8,6 +8,8 @@ import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.UUID;
+
 @Mapper(componentModel = "spring")
 public interface EventMapper {
 
@@ -17,11 +19,11 @@ public interface EventMapper {
     @Mapping(source = "id", target = "id")
     Event toModel(EventRequest dto);
 
-    default String eventIdToString(EventId eventId) {
+    default UUID eventIdToString(EventId eventId) {
         return eventId != null ? eventId.getValue() : null;
     }
 
-    default EventId stringToEventId(String id) {
+    default EventId stringToEventId(UUID id) {
         return id != null ? new EventId(id) : null;
     }
 }

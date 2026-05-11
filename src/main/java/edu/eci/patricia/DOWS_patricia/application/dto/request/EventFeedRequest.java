@@ -1,7 +1,9 @@
 package edu.eci.patricia.DOWS_patricia.application.dto.request;
 
+
+
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventCategory;
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +17,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class EventFeedRequest {
 
-    private EventCategory categoryFilter;
+    private EventCategory category;
 
-    @Future(message = "Filter date must be in the future")
-    private LocalDate dateFilter;
+    @FutureOrPresent(message = "Date filter cannot be in the past")
+    private LocalDate date;
 }

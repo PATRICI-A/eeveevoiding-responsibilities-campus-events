@@ -1,7 +1,6 @@
 package edu.eci.patricia.DOWS_patricia.application.usecase;
 
 
-import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequestRsvp;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
 import edu.eci.patricia.DOWS_patricia.application.mapper.EventRsvpMapper;
 import edu.eci.patricia.DOWS_patricia.domain.exceptions.EventNotFoundException;
@@ -12,12 +11,8 @@ import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateRsvpPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventRepositoryPort;
 
 import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventRsvpRepositoryPort;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

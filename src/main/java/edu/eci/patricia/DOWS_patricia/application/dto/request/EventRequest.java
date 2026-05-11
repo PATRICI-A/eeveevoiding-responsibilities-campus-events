@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EventRequest {
 
-    @NotBlank(message = "Event name cannot be empty")
+    @NotBlank(message = "Event name is required")
     @Size(max = 100, message = "Event name cannot exceed 100 characters")
     private String name;
 
@@ -27,7 +27,11 @@ public class EventRequest {
     @Future(message = "Event date must be in the future")
     private LocalDateTime dateTime;
 
-    @NotBlank(message = "Location cannot be empty")
+    @NotNull(message = "Duration is required")
+    @Min(value = 15, message = "Duration must be at least 15 minutes")
+    private Integer durationMinutes;
+
+    @NotBlank(message = "Location is required")
     private String location;
 
     @NotNull(message = "Event category is required")
@@ -36,10 +40,6 @@ public class EventRequest {
     @NotNull(message = "Event type is required")
     private EventType type;
 
-    @Min(value = 10, message = "Minimum capacity is 2 people")
-    private Integer availableCapacity;
-
-    @NotNull(message = "Organizer id is required")
-    private String organizerId;
+    @Min(value = 2, message = "Max capacity must be at least 2")
+    private Integer maxCapacity;
 }
-

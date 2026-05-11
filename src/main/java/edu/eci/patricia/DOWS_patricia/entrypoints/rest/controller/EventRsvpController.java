@@ -1,6 +1,5 @@
 package edu.eci.patricia.DOWS_patricia.entrypoints.rest.controller;
 
-import edu.eci.patricia.DOWS_patricia.application.dto.request.EventRequestRsvp;
 import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelRsvpPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CreateRsvpPort;
