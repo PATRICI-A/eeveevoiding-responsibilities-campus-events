@@ -1,22 +1,27 @@
 package edu.eci.patricia.DOWS_patricia.domain.valueobjects;
 
 
-import edu.eci.patricia.DOWS_patricia.domain.exceptions.InvalidEventException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.UUID;
 
-public final class EventId {
-    private final String value;
+@Getter
+@EqualsAndHashCode
+public class EventId {
 
-    public EventId(String value) {
-        if (value == null || value.isBlank())
-            throw new InvalidEventException("EventId cannot be empty");
+    private final UUID value;
+
+    public EventId(UUID value) {
         this.value = value;
     }
 
     public static EventId generate() {
-        return new EventId(UUID.randomUUID().toString());
+        return new EventId(UUID.randomUUID());
     }
 
-    public String getValue() { return value; }
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

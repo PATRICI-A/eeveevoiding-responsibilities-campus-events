@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface GetEventsPort {
-    List<EventResponse> execute(EventCategory categoryFilter, LocalDate dateFilter);
+    List<EventResponse> execute(EventCategory category, LocalDate date);
 }
