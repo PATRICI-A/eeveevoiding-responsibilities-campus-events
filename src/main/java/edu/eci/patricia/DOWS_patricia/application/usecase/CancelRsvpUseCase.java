@@ -1,45 +1,51 @@
 package edu.eci.patricia.DOWS_patricia.application.usecase;
 
-import edu.eci.patricia.DOWS_patricia.application.dto.response.EventResponseRsvp;
-import edu.eci.patricia.DOWS_patricia.application.mapper.EventRsvpMapper;
 import edu.eci.patricia.DOWS_patricia.domain.exceptions.EventNotFoundException;
+import edu.eci.patricia.DOWS_patricia.domain.exceptions.RsvpAlreadyExistsException;
 import edu.eci.patricia.DOWS_patricia.domain.exceptions.RsvpNotFoundException;
 import edu.eci.patricia.DOWS_patricia.domain.model.Event;
 import edu.eci.patricia.DOWS_patricia.domain.model.EventRsvp;
-import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventStatus;
+import edu.eci.patricia.DOWS_patricia.domain.model.enums.EventType;
 import edu.eci.patricia.DOWS_patricia.domain.model.enums.RsvpStatus;
 import edu.eci.patricia.DOWS_patricia.domain.ports.in.CancelRsvpPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.DOWS_patricia.domain.ports.out.EventRsvpRepositoryPort;
-import edu.eci.patricia.DOWS_patricia.domain.valueobjects.RsvpId;
+import edu.eci.patricia.DOWS_patricia.domain.valueobjects.EventId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CancelRsvpUseCase implements CancelRsvpPort {
 
-    private final EventRsvpRepositoryPort rsvpRepository;
     private final EventRepositoryPort eventRepository;
-    private final EventRsvpMapper rsvpMapper;
+    private final EventRsvpRepositoryPort rsvpRepository;
 
     @Override
-    public EventResponseRsvp execute(String id) {
-        EventRsvp rsvp = rsvpRepository.findById(new RsvpId(id))
-                .orElseThrow(() -> new RsvpNotFoundException("RSVP not found with id: " + id));
+    public void execute(UUID eventId, UUID studentId) {
 
-        Event event = eventRepository.findById(rsvp.getEventId())
-                .orElseThrow(() -> new EventNotFoundException("Event not found"));
+        EventId evId = new EventId(eventId);
 
-        event.setAvailableSpots(event.getAvailableSpots() + 1);
+        Event event = eventRepository.findById(evId)
+                .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        if (event.getStatus() == EventStatus.FULL) {
-            event.setStatus(EventStatus.ACTIVE);
+        EventRsvp rsvp = rsvpRepository.findByEventIdAndStudentId(evId, studentId)
+                .orElseThrow(() -> new RsvpNotFoundException(eventId.toString()));
+
+        if (rsvp.getStatus() == RsvpStatus.CANCELLED) {
+            throw new RsvpAlreadyExistsException("RSVP is already cancelled for event: " + eventId);
         }
 
-        eventRepository.save(event);
-
         rsvp.setStatus(RsvpStatus.CANCELLED);
-        return rsvpMapper.toResponse(rsvpRepository.save(rsvp));
+        rsvp.setCancelledAt(LocalDateTime.now());
+        rsvpRepository.save(rsvp);
+
+        if (event.getType() == EventType.WITH_CAPACITY) {
+            event.setAvailableCapacity(event.getAvailableCapacity() + 1);
+            eventRepository.save(event);
+        }
     }
 }
