@@ -20,15 +20,18 @@ public class CancelEventUseCase implements CancelEventPort {
     private final EventMapper eventMapper;
 
     @Override
-    public EventResponse execute(String id) {
-        Event event = eventRepository.findById(new EventId(id))
+    public EventResponse execute(String id,String organizerId) {
+        Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
         if (event.getStatus() == EventStatus.CANCELLED) {
             throw new EventAlreadyCancelledException("Event is already cancelled");
         }
 
-        event.setStatus(EventStatus.CANCELLED);
+        event.validateCancelableBy(organizerId);
+
+        event.cancel();
+
         Event saved = eventRepository.save(event);
         return eventMapper.toDTO(saved);
     }
