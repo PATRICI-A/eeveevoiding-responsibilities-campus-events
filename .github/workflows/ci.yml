@@ -33,7 +33,13 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and run tests with coverage
-        run: mvn clean verify
+        run: mvn clean verify -DJWT_SECRET=${{ secrets.JWT_SECRET_TEST }}
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
 
       - name: Upload test reports
         if: always()
@@ -48,16 +54,3 @@ jobs:
         with:
           name: coverage-report
           path: target/site/jacoco/
-
-  docker:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    if: success()
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t campus-events:${{ github.sha }} .
