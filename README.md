@@ -258,19 +258,25 @@ El dominio permanece completamente aislado de frameworks, bases de datos y depen
 
 ## 8. 📊 Diagramas
 
+### Diagrama de Componentes - Vista General
+
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaComponentesEspecificoParches.png)
+
 ### Diagrama de Componentes - Vista Específica
 
-///FOTO////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaComponentesEventos.png)
 
 ### Diagrama de Clases del Dominio
 
-///FOTO////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaDominioEventos.png)
+
 ### Diagrama de Base de Datos (MongoDB)
 
-///FOTO////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaBaseDatosEventos.png)
+
 ### Diagrama de Despliegue
 
-///FOTO////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaDespliegue.png)
 
 ---
 
@@ -391,7 +397,7 @@ open target/site/jacoco/index.html
 
 **Reporte JaCoCo con cobertura de código:**
 
-///FOTO////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/images/pruebasEventos.png)
 
 ---
 
@@ -687,7 +693,7 @@ Merge a main
 
 ### Evidencia del despliegue CI/CD
 
-////////////IMAGEN///////////////
+![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/images/CICDEventos.png)
 
 ---
 
