@@ -475,16 +475,6 @@ PATCH /api/rsvp/rsvp-001/cancel
 
 ### Diagrama de Despliegue
 
-
----
-### 🔌 Servicios Externos Integrados
-### 📊 Diagrama de base de datos
-#### 📋 Colección: `Receipts`
-### 📦 Diagrama de Clases del Dominio
-### 📦 DTOs Principales
-### 🗄️ Diagrama de Despliegue
-#### 🚀 Despliegue e Infraestructura
-
 ---
 
 ## 8. ⚠️ Manejo de Errores
