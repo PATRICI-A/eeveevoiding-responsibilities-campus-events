@@ -53,7 +53,7 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getById(@PathVariable UUID eventId) {
+    public ResponseEntity<EventFeedResponse> getById(@PathVariable UUID eventId) {
         return ResponseEntity.ok(getEventByIdPort.execute(eventId));
     }
 

@@ -1,5 +1,6 @@
 package edu.eci.patricia.application.usecase;
 
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.application.mapper.EventMapper;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
@@ -19,9 +20,9 @@ public class GetEventByIdUseCase implements GetEventByIdPort {
     private final EventMapper eventMapper;
 
     @Override
-    public EventResponse execute(UUID eventId) {
+    public EventFeedResponse execute(UUID eventId) {
         return eventRepository.findById(new EventId(eventId))
-                .map(eventMapper::toDTO)
+                .map(eventMapper::toFeedDTO)
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
     }
 }
