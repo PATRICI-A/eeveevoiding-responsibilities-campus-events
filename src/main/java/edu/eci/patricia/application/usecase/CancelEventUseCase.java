@@ -35,7 +35,7 @@ public class CancelEventUseCase implements CancelEventPort {
         }
 
         event.setStatus(EventStatus.CANCELLED);
-        event.setUpdatedAt(LocalDateTime.now());
+
 
         eventRepository.save(event);
     }

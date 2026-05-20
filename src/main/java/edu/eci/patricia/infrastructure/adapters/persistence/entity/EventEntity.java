@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -34,8 +33,8 @@ public class EventEntity {
     @Field("date_time")
     private LocalDate dateTime;
 
-    @Field("time")
-    private LocalDate time;
+    @Field("start_time")
+    private String startTime;
 
     @Field("duration_minutes")
     private Integer durationMinutes;

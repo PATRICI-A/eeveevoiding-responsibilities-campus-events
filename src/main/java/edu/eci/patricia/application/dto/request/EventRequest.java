@@ -1,5 +1,6 @@
 package edu.eci.patricia.application.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import edu.eci.patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.domain.model.enums.EventType;
 import jakarta.validation.constraints.*;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Data
 @Builder
@@ -27,12 +29,11 @@ public class EventRequest {
     @NotNull(message = "Event date and time is required")
     @Future(message = "Event date must be in the future")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate dateTime;
 
     @NotNull(message = "Event schedule is required")
-    @Future(message = "Event date must be in the future")
-    @DateTimeFormat(pattern = "HH:mm")
-    private LocalDate time;
+    private String startTime;
 
     @NotNull(message = "Duration is required")
     @Min(value = 15, message = "Duration must be at least 15 minutes")

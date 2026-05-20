@@ -40,11 +40,9 @@ public class UpdateEventUseCase implements UpdateEventPort {
 
         event.setName(request.getName());
         event.setDescription(request.getDescription());
-        event.setDateTime(request.getDateTime());
         event.setDurationMinutes(request.getDurationMinutes());
         event.setLocation(request.getLocation());
         event.setCategory(request.getCategory());
-        event.setUpdatedAt(LocalDateTime.now());
 
         return eventMapper.toDTO(eventRepository.save(event));
     }

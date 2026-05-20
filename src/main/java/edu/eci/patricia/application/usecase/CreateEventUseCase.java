@@ -31,14 +31,12 @@ public class CreateEventUseCase implements CreateEventPort {
             throw new EventDomainException("Max capacity is required for WITH_CAPACITY events");
         }
 
-
         Event event = eventMapper.toDomain(request);
         event.setId(EventId.generate());
         event.setOrganizerId(organizerId);
         event.setStatus(EventStatus.ACTIVE);
         event.setAvailableCapacity(request.getType() == EventType.WITH_CAPACITY
                 ? request.getMaxCapacity() : null);
-        event.setCreatedAt(LocalDateTime.now());
 
 
         Event saved = eventRepository.save(event);

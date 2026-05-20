@@ -7,6 +7,8 @@ import edu.eci.patricia.domain.valueobjects.EventId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
@@ -16,12 +18,18 @@ public interface EventMapper {
     @Mapping(target = "organizerId", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "availableCapacity", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "qrCode", ignore = true)
+    @Mapping(target = "durationMinutes", source = "duration")
     Event toDomain(EventRequest request);
 
+    @Mapping(target = "duration", source = "durationMinutes")
     EventResponse toDTO(Event event);
+
+    default LocalTime stringToLocalTime(String startTime) {
+        return startTime != null
+                ? LocalTime.parse(startTime, DateTimeFormatter.ofPattern("HH:mm"))
+                : null;
+    }
 
     default UUID eventIdToUUID(EventId eventId) {
         return eventId != null ? eventId.getValue() : null;

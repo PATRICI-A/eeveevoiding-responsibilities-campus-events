@@ -1,6 +1,5 @@
 package edu.eci.patricia.domain.model;
 
-
 import edu.eci.patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.domain.model.enums.EventType;
@@ -8,6 +7,7 @@ import edu.eci.patricia.domain.valueobjects.EventId;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
@@ -20,7 +20,7 @@ public class Event {
     private String name;
     private String description;
     private LocalDate dateTime;
-    private LocalDate time;
+    private LocalTime startTime;
     private Integer durationMinutes;
     private String location;
     private EventCategory category;
