@@ -4,6 +4,7 @@ import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.application.mapper.EventMapper;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
+import edu.eci.patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.domain.ports.in.GetEventByIdPort;
 import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.domain.valueobjects.EventId;
@@ -22,6 +23,7 @@ public class GetEventByIdUseCase implements GetEventByIdPort {
     @Override
     public EventFeedResponse execute(UUID eventId) {
         return eventRepository.findById(new EventId(eventId))
+                .filter(event -> event.getStatus().equals(EventStatus.ACTIVE))
                 .map(eventMapper::toFeedDTO)
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
     }

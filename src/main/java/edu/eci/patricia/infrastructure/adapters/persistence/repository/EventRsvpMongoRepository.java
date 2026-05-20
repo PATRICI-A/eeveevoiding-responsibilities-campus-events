@@ -17,4 +17,6 @@ public interface EventRsvpMongoRepository extends MongoRepository<EventRsvpEntit
     List<EventRsvpEntity> findByEventIdAndStatus(UUID eventId, RsvpStatus status);
 
     Optional<EventRsvpEntity> findByEventIdAndStudentId(UUID eventId, UUID studentId);
+
+    List<EventRsvpEntity> findByStudentId(UUID studentId);
 }
