@@ -48,6 +48,5 @@ public class EventRequest {
     @NotNull(message = "Event type is required")
     private EventType type;
 
-    @Min(value = 2, message = "Max capacity must be at least 2")
     private Integer maxCapacity;
 }

@@ -31,6 +31,11 @@ public class CreateEventUseCase implements CreateEventPort {
             throw new EventDomainException("Max capacity is required for WITH_CAPACITY events");
         }
 
+        if (request.getType() == EventType.WITH_CAPACITY && request.getMaxCapacity() < 2) {
+            throw new EventDomainException("Minimum of 2 spots for WITH_CAPACITY events");
+        }
+
+
         Event event = eventMapper.toDomain(request);
         event.setId(EventId.generate());
         event.setOrganizerId(organizerId);
