@@ -2,10 +2,7 @@ package edu.eci.patricia.application.usecase;
 
 import edu.eci.patricia.application.dto.response.EventResponseRsvp;
 import edu.eci.patricia.application.mapper.EventRsvpMapper;
-import edu.eci.patricia.domain.exceptions.EventCapacityFullException;
-import edu.eci.patricia.domain.exceptions.EventNotActiveException;
-import edu.eci.patricia.domain.exceptions.EventNotFoundException;
-import edu.eci.patricia.domain.exceptions.RsvpAlreadyExistsException;
+import edu.eci.patricia.domain.exceptions.*;
 import edu.eci.patricia.domain.model.Event;
 import edu.eci.patricia.domain.model.EventRsvp;
 import edu.eci.patricia.domain.model.enums.EventStatus;
@@ -20,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,29 +40,43 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
             throw new EventNotActiveException("Can´t modify no ACTIVE event");
         }
 
-        if (rsvpRepository.existsByEventIdAndStudentId(evId, studentId) && ){
-
+        if (event.getAvailableCapacity() == 0) {
+            throw new EventCapacityFullException("Event capacity is FULL");
         }
 
 
+        if (!rsvpRepository.existsByEventIdAndStudentId(evId, studentId)) {
+            EventRsvp rsvp = EventRsvp.builder()
+                    .id(new RsvpId(UUID.randomUUID()))
+                    .eventId(evId)
+                    .studentId(studentId)
+                    .status(RsvpStatus.CONFIRMED)
+                    .build();
 
-        if (event.getType() == EventType.WITH_CAPACITY &&
-                (event.getAvailableCapacity() == null || event.getAvailableCapacity() <= 0)) {
-            throw new EventCapacityFullException(eventId.toString());
+            if (event.getType() == EventType.WITH_CAPACITY) {
+                event.setAvailableCapacity(event.getAvailableCapacity() - 1);
+                eventRepository.save(event);
+            }
+            rsvpRepository.save(rsvp);
+
+            return rsvpMapper.toDTO(rsvpRepository.save(rsvp));
         }
 
-        EventRsvp rsvp = EventRsvp.builder()
-                .id(new RsvpId(UUID.randomUUID()))
-                .eventId(evId)
-                .studentId(studentId)
-                .status(RsvpStatus.CONFIRMED)
-                .build();
+        EventRsvp existingRsvp = rsvpRepository.findByEventIdAndStudentId(eventId, studentId)
+                .orElseThrow(() -> new RsvpNotFoundException("RSVP not found for this event and student"));
+
+
+        if (existingRsvp.getStatus() ==  RsvpStatus.CONFIRMED) {
+            throw new RsvpAlreadyExistsException("RSVP is already confirmed for event: " + eventId);
+        } else if (existingRsvp.getStatus() ==  RsvpStatus.CANCELLED) {
+            existingRsvp.setStatus(RsvpStatus.CONFIRMED);
+        }
 
         if (event.getType() == EventType.WITH_CAPACITY) {
             event.setAvailableCapacity(event.getAvailableCapacity() - 1);
             eventRepository.save(event);
         }
 
-        return rsvpMapper.toDTO(rsvpRepository.save(rsvp));
+        return rsvpMapper.toDTO(rsvpRepository.save(existingRsvp));
     }
 }

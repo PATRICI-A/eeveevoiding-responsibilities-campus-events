@@ -37,8 +37,8 @@ public class EventRsvpController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(createRsvpPort.execute(eventId, studentId));
         } else {
-            cancelRsvpPort.execute(eventId, studentId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(cancelRsvpPort.execute(eventId, studentId));
         }
     }
 
