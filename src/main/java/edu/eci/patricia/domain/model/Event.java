@@ -8,7 +8,6 @@ import edu.eci.patricia.domain.valueobjects.EventId;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
