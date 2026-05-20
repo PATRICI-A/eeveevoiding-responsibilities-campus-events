@@ -10,9 +10,11 @@ import java.util.UUID;
 
 public interface EventRsvpMongoRepository extends MongoRepository<EventRsvpEntity, UUID> {
 
-    Optional<EventRsvpEntity> findByEventIdAndStudentId(UUID eventId, UUID studentId);
+    boolean existsByEventIdAndStudentId(UUID eventId, UUID studentId);
 
     List<EventRsvpEntity> findByStudentIdAndStatus(UUID studentId, RsvpStatus status);
 
     List<EventRsvpEntity> findByEventIdAndStatus(UUID eventId, RsvpStatus status);
+
+    Optional<EventRsvpEntity> findByEventIdAndStudentId(UUID eventId, UUID studentId);
 }

@@ -23,17 +23,17 @@ public class EventRsvpController {
 
     private final CreateRsvpPort createRsvpPort;
     private final CancelRsvpPort cancelRsvpPort;
-    private final EventRsvpRepositoryPort rsvpRepository;
     private final EventRsvpMapper rsvpMapper;
     private final EventRsvpRepositoryPort eventRsvpRepository;
 
-    // RF22 — Confirm or cancel attendance
+
     @PostMapping("/{eventId}/rsvp")
     public ResponseEntity<EventResponseRsvp> rsvp(
             @PathVariable UUID eventId,
-            @Valid @RequestBody EventRequestRsvp request,
+            @Valid RsvpAction action,
             @RequestHeader("X-User-Id") UUID studentId) {
-        if (request.getAction() == RsvpAction.CONFIRM) {
+
+        if ( action == RsvpAction.CONFIRM) {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(createRsvpPort.execute(eventId, studentId));
         } else {

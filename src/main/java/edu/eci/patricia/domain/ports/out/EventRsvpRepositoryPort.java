@@ -10,8 +10,9 @@ import java.util.UUID;
 public interface EventRsvpRepositoryPort {
 
     EventRsvp save(EventRsvp rsvp);
-    Optional<EventRsvp> findByEventIdAndStudentId(EventId eventId, UUID studentId);
+    boolean existsByEventIdAndStudentId(EventId eventId, UUID studentId);
     List<EventRsvp> findConfirmedByStudentId(UUID studentId);
     List<EventRsvp> findConfirmedByEventId(EventId eventId);
+    Optional<EventRsvp> findByEventIdAndStudentId(EventId eventId, UUID studentId);
 
 }

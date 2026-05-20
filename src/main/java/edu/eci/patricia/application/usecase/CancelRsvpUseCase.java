@@ -32,15 +32,13 @@ public class CancelRsvpUseCase implements CancelRsvpPort {
         Event event = eventRepository.findById(evId)
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        EventRsvp rsvp = rsvpRepository.findByEventIdAndStudentId(evId, studentId)
-                .orElseThrow(() -> new RsvpNotFoundException(eventId.toString()));
+        boolean rsvp = rsvpRepository.existsByEventIdAndStudentId(evId, studentId);
 
         if (rsvp.getStatus() == RsvpStatus.CANCELLED) {
             throw new RsvpAlreadyExistsException("RSVP is already cancelled for event: " + eventId);
         }
 
         rsvp.setStatus(RsvpStatus.CANCELLED);
-        rsvp.setCancelledAt(LocalDateTime.now());
         rsvpRepository.save(rsvp);
 
         if (event.getType() == EventType.WITH_CAPACITY) {

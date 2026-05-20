@@ -35,17 +35,18 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
 
         EventId evId = new EventId(eventId);
 
-
         Event event = eventRepository.findById(evId)
-                .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
+                .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
-        if (event.getStatus() != EventStatus.ACTIVE) {
-            throw new EventNotActiveException(eventId.toString());
+        if (event.getStatus() != EventStatus.ACTIVE ) {
+            throw new EventNotActiveException("Can´t modify no ACTIVE event");
         }
 
-        rsvpRepository.findByEventIdAndStudentId(evId, studentId).ifPresent(r -> {
-            throw new RsvpAlreadyExistsException(eventId.toString());
-        });
+        if (rsvpRepository.existsByEventIdAndStudentId(evId, studentId) && ){
+
+        }
+
+
 
         if (event.getType() == EventType.WITH_CAPACITY &&
                 (event.getAvailableCapacity() == null || event.getAvailableCapacity() <= 0)) {
@@ -57,7 +58,6 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
                 .eventId(evId)
                 .studentId(studentId)
                 .status(RsvpStatus.CONFIRMED)
-                .confirmedAt(LocalDateTime.now())
                 .build();
 
         if (event.getType() == EventType.WITH_CAPACITY) {
