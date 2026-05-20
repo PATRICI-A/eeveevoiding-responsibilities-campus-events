@@ -26,8 +26,8 @@ public class CancelEventUseCase implements CancelEventPort {
         Event event = eventRepository.findById(new EventId(eventId))
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        if (event.getStatus() != EventStatus.ACTIVE) {
-            throw new EventNotActiveException(eventId.toString());
+        if (event.getStatus() != EventStatus.ACTIVE ) {
+            throw new EventNotActiveException("Can´t cancel no ACTIVE event");
         }
 
         if (!event.getOrganizerId().equals(organizerId)) {

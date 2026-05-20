@@ -57,7 +57,7 @@ public class EventController {
         return ResponseEntity.ok(getEventByIdPort.execute(eventId));
     }
 
-    @DeleteMapping("/{eventId}")
+    @PatchMapping("/{eventId}")
     public ResponseEntity<Void> cancel(
             @PathVariable UUID eventId,
             @RequestHeader("X-User-Id") UUID organizerId) {
