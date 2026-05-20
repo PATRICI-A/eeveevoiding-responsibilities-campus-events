@@ -7,8 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -25,11 +26,17 @@ public class EventRequest {
 
     @NotNull(message = "Event date and time is required")
     @Future(message = "Event date must be in the future")
-    private LocalDateTime dateTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dateTime;
+
+    @NotNull(message = "Event schedule is required")
+    @Future(message = "Event date must be in the future")
+    @DateTimeFormat(pattern = "HH:mm")
+    private LocalDate time;
 
     @NotNull(message = "Duration is required")
     @Min(value = 15, message = "Duration must be at least 15 minutes")
-    private Integer durationMinutes;
+    private Integer duration;
 
     @NotBlank(message = "Location is required")
     private String location;
