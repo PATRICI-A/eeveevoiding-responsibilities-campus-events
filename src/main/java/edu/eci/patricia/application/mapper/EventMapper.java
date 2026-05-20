@@ -1,6 +1,7 @@
 package edu.eci.patricia.application.mapper;
 
 import edu.eci.patricia.application.dto.request.EventRequest;
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.domain.exceptions.EventDomainException;
 import edu.eci.patricia.domain.model.Event;
@@ -26,6 +27,8 @@ public interface EventMapper {
 
     @Mapping(target = "duration", source = "durationMinutes")
     EventResponse toDTO(Event event);
+
+    EventFeedResponse toFeedDTO(Event event);
 
     default LocalTime stringToLocalTime(String startTime) {
         try {

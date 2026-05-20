@@ -3,6 +3,7 @@ package edu.eci.patricia.entrypoints.rest.controller;
 import edu.eci.patricia.application.dto.request.EventFeedRequest;
 import edu.eci.patricia.application.dto.request.EventRequest;
 import edu.eci.patricia.application.dto.request.EventUpdateRequest;
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.domain.ports.in.*;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@Valid EventFeedRequest filters) {
-        List<EventResponse> events = getEventsPort.execute(filters.getCategory(), filters.getDate());
+        List<EventFeedResponse> events = getEventsPort.execute(filters.getCategory(), filters.getDate());
         if (events.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "No events available at this time"));
         }
