@@ -13,4 +13,5 @@ public interface EventRsvpRepositoryPort {
     Optional<EventRsvp> findByEventIdAndStudentId(EventId eventId, UUID studentId);
     List<EventRsvp> findConfirmedByStudentId(UUID studentId);
     List<EventRsvp> findConfirmedByEventId(EventId eventId);
+
 }

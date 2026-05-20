@@ -35,6 +35,9 @@ public class CreateEventUseCase implements CreateEventPort {
             throw new EventDomainException("Minimum of 2 spots for WITH_CAPACITY events");
         }
 
+        if (eventRepository.existsByName(request.getName())) {
+            throw new EventDomainException("An event with the name '" + request.getName() + "' already exists");
+        }
 
         Event event = eventMapper.toDomain(request);
         event.setId(EventId.generate());
