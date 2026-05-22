@@ -59,8 +59,5 @@ public class SwaggerConfig {
         };
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+
 }

@@ -33,8 +33,5 @@ public class EventsRabbitMQConfig {
         template.setMessageConverter(messageConverter);
         return template;
     }
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+
 }
