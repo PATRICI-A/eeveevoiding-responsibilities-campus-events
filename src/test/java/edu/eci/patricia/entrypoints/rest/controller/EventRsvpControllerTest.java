@@ -170,5 +170,5 @@ class EventRsvpControllerTest {
         assertEquals(2, body.size());
         verify(getRsvpPort).execute(studentId);
     }
-    
+
 }

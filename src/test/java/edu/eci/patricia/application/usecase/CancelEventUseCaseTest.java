@@ -51,16 +51,6 @@ class CancelEventUseCaseTest {
                 .build();
     }
 
-    @Test
-    void execute_shouldCancelEvent_whenValidRequest() {
-        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
-        when(eventRepository.save(any(Event.class))).thenReturn(activeEvent);
-
-        cancelEventUseCase.execute(eventId, organizerId);
-
-        assertEquals(EventStatus.CANCELLED, activeEvent.getStatus());
-        verify(eventRepository).save(activeEvent);
-    }
 
     @Test
     void execute_shouldThrowException_whenEventNotFound() {

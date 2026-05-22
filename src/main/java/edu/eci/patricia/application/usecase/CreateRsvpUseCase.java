@@ -13,6 +13,7 @@ import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.domain.ports.out.EventRsvpRepositoryPort;
 import edu.eci.patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.domain.valueobjects.RsvpId;
+import edu.eci.patricia.infrastructure.notification.NotificationServiceClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
     private final EventRepositoryPort eventRepository;
     private final EventRsvpRepositoryPort rsvpRepository;
     private final EventRsvpMapper rsvpMapper;
+    private final NotificationServiceClient notificationServiceClient;
 
     @Override
     public EventResponseRsvp execute(UUID eventId, UUID studentId) {
@@ -58,6 +60,13 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
                 eventRepository.save(event);
             }
             rsvpRepository.save(rsvp);
+
+            LocalDateTime eventDate = LocalDateTime.of(event.getDateTime(), event.getStartTime());
+            notificationServiceClient.registerEventReminder(
+                    studentId,
+                    eventId,
+                    eventDate
+            );
 
             return rsvpMapper.toDTO(rsvpRepository.save(rsvp));
         }
