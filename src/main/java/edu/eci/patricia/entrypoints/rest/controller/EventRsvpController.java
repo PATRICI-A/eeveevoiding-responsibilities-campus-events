@@ -55,4 +55,9 @@ public class EventRsvpController {
         }
         return ResponseEntity.ok(events);
     }
+
+    @GetMapping("/internal/rsvp-count/{userId}")
+    public ResponseEntity<Integer> getUserRsvpCount(@PathVariable UUID userId) {
+        return ResponseEntity.ok(getRsvpPort.execute(userId).size());
+    }
 }
