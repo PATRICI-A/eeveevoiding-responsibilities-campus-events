@@ -3,8 +3,11 @@ package edu.eci.patricia.entrypoints.rest.controller;
 import edu.eci.patricia.application.dto.request.EventFeedRequest;
 import edu.eci.patricia.application.dto.request.EventRequest;
 import edu.eci.patricia.application.dto.request.EventUpdateRequest;
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.domain.ports.in.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,7 +39,7 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@Valid EventFeedRequest filters) {
-        List<EventResponse> events = getEventsPort.execute(filters.getCategory(), filters.getDate());
+        List<EventFeedResponse> events = getEventsPort.execute(filters.getCategory(), filters.getDate());
         if (events.isEmpty()) {
             return ResponseEntity.ok(Map.of("message", "No events available at this time"));
         }
@@ -52,11 +55,15 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getById(@PathVariable UUID eventId) {
+    public ResponseEntity<EventFeedResponse> getById(@PathVariable UUID eventId) {
         return ResponseEntity.ok(getEventByIdPort.execute(eventId));
     }
 
-    @DeleteMapping("/{eventId}")
+    @PatchMapping("/{eventId}")
+    @Operation(
+            summary = "Cancel an event"
+    )
+    @ApiResponse(responseCode = "204", description = "Event cancelled successfully")
     public ResponseEntity<Void> cancel(
             @PathVariable UUID eventId,
             @RequestHeader("X-User-Id") UUID organizerId) {

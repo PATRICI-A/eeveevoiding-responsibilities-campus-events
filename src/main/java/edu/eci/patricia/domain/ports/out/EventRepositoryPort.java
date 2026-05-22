@@ -18,4 +18,6 @@ public interface EventRepositoryPort {
     List<Event> findActiveEvents(EventCategory category, LocalDate date);
 
     List<Event> findByStatus(EventStatus status);
+
+    boolean existsByName(String name);
 }

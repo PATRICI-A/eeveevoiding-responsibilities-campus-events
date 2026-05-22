@@ -22,4 +22,6 @@ public interface EventMongoRepository extends MongoRepository<EventEntity, UUID>
                                                                 EventCategory category,
                                                                 java.time.LocalDateTime start,
                                                                 java.time.LocalDateTime end);
+
+    boolean existsByName(String name);
 }

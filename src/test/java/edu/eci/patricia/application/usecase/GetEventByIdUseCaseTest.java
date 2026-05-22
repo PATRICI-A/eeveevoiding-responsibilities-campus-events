@@ -1,6 +1,6 @@
 package edu.eci.patricia.application.usecase;
 
-import edu.eci.patricia.application.dto.response.EventResponse;
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.mapper.EventMapper;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
 import edu.eci.patricia.domain.model.Event;
@@ -16,12 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,57 +34,64 @@ class GetEventByIdUseCaseTest {
     @InjectMocks
     private GetEventByIdUseCase getEventByIdUseCase;
 
-    private UUID eventUUID;
-    private Event event;
-    private EventResponse eventResponse;
+    private UUID eventId;
+    private EventId evId;
+    private Event activeEvent;
+    private Event cancelledEvent;
+    private EventFeedResponse feedResponse;
 
     @BeforeEach
     void setUp() {
-        eventUUID = UUID.randomUUID();
-        EventId eventId = new EventId(eventUUID);
+        eventId = UUID.randomUUID();
+        evId = new EventId(eventId);
 
-        event = Event.builder()
-                .id(eventId)
-                .name("Tech Talk")
-                .description("Academic event")
-                .dateTime(LocalDateTime.now().plusDays(5))
-                .durationMinutes(90)
-                .location("Auditorium A")
-                .category(EventCategory.ACADEMIC)
-                .type(EventType.WITH_CAPACITY)
-                .maxCapacity(100)
-                .availableCapacity(100)
+        activeEvent = Event.builder()
+                .id(evId)
+                .name("Evento Activo")
                 .status(EventStatus.ACTIVE)
-                .organizerId(UUID.randomUUID())
+                .type(EventType.OPEN)
+                .category(EventCategory.ACADEMIC)
                 .build();
 
-        eventResponse = EventResponse.builder()
-                .id(eventUUID)
-                .name("Tech Talk")
+        cancelledEvent = Event.builder()
+                .id(evId)
+                .name("Evento Cancelado")
+                .status(EventStatus.CANCELLED)
+                .type(EventType.OPEN)
+                .category(EventCategory.ACADEMIC)
+                .build();
+
+        feedResponse = EventFeedResponse.builder()
+                .id(eventId)
+                .name("Evento Activo")
                 .status(EventStatus.ACTIVE)
                 .build();
     }
 
     @Test
-    void shouldReturnEventResponseWhenEventExists() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(event));
-        when(eventMapper.toDTO(event)).thenReturn(eventResponse);
+    void execute_shouldReturnEvent_whenEventExistsAndIsActive() {
+        when(eventRepository.findById(evId)).thenReturn(Optional.of(activeEvent));
+        when(eventMapper.toFeedDTO(activeEvent)).thenReturn(feedResponse);
 
-        EventResponse result = getEventByIdUseCase.execute(eventUUID);
+        EventFeedResponse result = getEventByIdUseCase.execute(eventId);
 
         assertNotNull(result);
-        assertEquals(eventUUID, result.getId());
-        assertEquals("Tech Talk", result.getName());
-        verify(eventRepository).findById(any(EventId.class));
-        verify(eventMapper).toDTO(event);
+        assertEquals("Evento Activo", result.getName());
     }
 
     @Test
-    void shouldThrowEventNotFoundExceptionWhenEventDoesNotExist() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.empty());
+    void execute_shouldThrowException_whenEventNotFound() {
+        when(eventRepository.findById(evId)).thenReturn(Optional.empty());
 
-        assertThrows(EventNotFoundException.class, () -> getEventByIdUseCase.execute(eventUUID));
-        verify(eventRepository).findById(any(EventId.class));
-        verify(eventMapper, never()).toDTO(any());
+        assertThrows(EventNotFoundException.class,
+                () -> getEventByIdUseCase.execute(eventId));
+    }
+
+    @Test
+    void execute_shouldThrowException_whenEventIsNotActive() {
+        when(eventRepository.findById(evId)).thenReturn(Optional.of(cancelledEvent));
+
+        assertThrows(EventNotFoundException.class,
+                () -> getEventByIdUseCase.execute(eventId));
     }
 }

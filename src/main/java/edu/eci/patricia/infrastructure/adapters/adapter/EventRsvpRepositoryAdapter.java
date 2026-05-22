@@ -26,9 +26,8 @@ public class EventRsvpRepositoryAdapter implements EventRsvpRepositoryPort {
     }
 
     @Override
-    public Optional<EventRsvp> findByEventIdAndStudentId(EventId eventId, UUID studentId) {
-        return repository.findByEventIdAndStudentId(eventId.getValue(), studentId)
-                .map(mapper::toModel);
+    public boolean existsByEventIdAndStudentId(EventId eventId, UUID studentId) {
+        return repository.existsByEventIdAndStudentId(eventId.getValue(), studentId);
     }
 
     @Override
@@ -40,6 +39,18 @@ public class EventRsvpRepositoryAdapter implements EventRsvpRepositoryPort {
     @Override
     public List<EventRsvp> findConfirmedByEventId(EventId eventId) {
         return repository.findByEventIdAndStatus(eventId.getValue(), RsvpStatus.CONFIRMED)
+                .stream().map(mapper::toModel).toList();
+    }
+
+    @Override
+    public Optional<EventRsvp> findByEventIdAndStudentId(UUID eventId, UUID studentId) {
+        return repository.findByEventIdAndStudentId(eventId, studentId)
+                .map(mapper::toModel);
+    }
+
+    @Override
+    public List<EventRsvp> findByStudentId(UUID studentId) {
+        return repository.findByStudentId(studentId)
                 .stream().map(mapper::toModel).toList();
     }
 }
