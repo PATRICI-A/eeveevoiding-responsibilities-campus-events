@@ -1,6 +1,7 @@
 package edu.eci.patricia.domain.valueobjects;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,7 @@ class EventIdTest {
     }
 
     @Test
-    void shouldGenerateDifferentEventIdsEachTime() {
+    void shouldGenerateUniqueEventIds() {
         EventId first = EventId.generate();
         EventId second = EventId.generate();
         assertNotEquals(first, second);
@@ -34,6 +35,7 @@ class EventIdTest {
         EventId a = new EventId(uuid);
         EventId b = new EventId(uuid);
         assertEquals(a, b);
+        assertEquals(a.hashCode(), b.hashCode());
     }
 
     @Test
@@ -44,17 +46,21 @@ class EventIdTest {
     }
 
     @Test
-    void shouldHaveSameHashCodeWhenSameUUID() {
-        UUID uuid = UUID.randomUUID();
-        EventId a = new EventId(uuid);
-        EventId b = new EventId(uuid);
-        assertEquals(a.hashCode(), b.hashCode());
-    }
-
-    @Test
     void shouldReturnUUIDStringOnToString() {
         UUID uuid = UUID.randomUUID();
         EventId eventId = new EventId(uuid);
         assertEquals(uuid.toString(), eventId.toString());
+    }
+
+    @Test
+    void shouldNotBeEqualToNull() {
+        EventId eventId = EventId.generate();
+        assertNotEquals(null, eventId);
+    }
+
+    @Test
+    void shouldNotBeEqualToDifferentType() {
+        EventId eventId = EventId.generate();
+        assertNotEquals("someString", eventId);
     }
 }

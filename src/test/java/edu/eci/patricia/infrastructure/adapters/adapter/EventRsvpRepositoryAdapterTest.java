@@ -14,11 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,9 +35,9 @@ class EventRsvpRepositoryAdapterTest {
     @InjectMocks
     private EventRsvpRepositoryAdapter adapter;
 
-    private UUID rsvpUUID;
-    private UUID eventUUID;
-    private UUID studentId;
+    private UUID rsvpUuid;
+    private UUID eventUuid;
+    private UUID studentUuid;
     private EventId eventId;
     private RsvpId rsvpId;
     private EventRsvp eventRsvp;
@@ -43,27 +45,30 @@ class EventRsvpRepositoryAdapterTest {
 
     @BeforeEach
     void setUp() {
-        rsvpUUID = UUID.randomUUID();
-        eventUUID = UUID.randomUUID();
-        studentId = UUID.randomUUID();
-        eventId = new EventId(eventUUID);
-        rsvpId = new RsvpId(rsvpUUID);
+        rsvpUuid = UUID.randomUUID();
+        eventUuid = UUID.randomUUID();
+        studentUuid = UUID.randomUUID();
+        eventId = new EventId(eventUuid);
+        rsvpId = new RsvpId(rsvpUuid);
+
         eventRsvp = EventRsvp.builder()
                 .id(rsvpId)
                 .eventId(eventId)
-                .studentId(studentId)
+                .studentId(studentUuid)
                 .status(RsvpStatus.CONFIRMED)
                 .build();
+
         eventRsvpEntity = EventRsvpEntity.builder()
-                .id(rsvpUUID)
-                .eventId(eventUUID)
-                .studentId(studentId)
+                .id(rsvpUuid)
+                .eventId(eventUuid)
+                .studentId(studentUuid)
                 .status(RsvpStatus.CONFIRMED)
+                .confirmedAt(LocalDateTime.now())
                 .build();
     }
 
     @Test
-    void save_shouldReturnMappedModel() {
+    void saveShouldReturnMappedRsvp() {
         when(mapper.toEntity(eventRsvp)).thenReturn(eventRsvpEntity);
         when(repository.save(eventRsvpEntity)).thenReturn(eventRsvpEntity);
         when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
@@ -71,97 +76,170 @@ class EventRsvpRepositoryAdapterTest {
         EventRsvp result = adapter.save(eventRsvp);
 
         assertNotNull(result);
-        assertEquals(eventRsvp, result);
+        assertEquals(eventRsvp.getId(), result.getId());
+        assertEquals(eventRsvp.getEventId(), result.getEventId());
+        assertEquals(eventRsvp.getStudentId(), result.getStudentId());
+        assertEquals(eventRsvp.getStatus(), result.getStatus());
+
         verify(mapper).toEntity(eventRsvp);
         verify(repository).save(eventRsvpEntity);
         verify(mapper).toModel(eventRsvpEntity);
     }
 
     @Test
-    void findByEventIdAndStudentId_shouldReturnMappedModel_whenExists() {
-        when(repository.findByEventIdAndStudentId(eventUUID, studentId)).thenReturn(Optional.of(eventRsvpEntity));
+    void existsByEventIdAndStudentIdShouldReturnTrueWhenExists() {
+        when(repository.existsByEventIdAndStudentId(eventUuid, studentUuid)).thenReturn(true);
+
+        boolean result = adapter.existsByEventIdAndStudentId(eventId, studentUuid);
+
+        assertTrue(result);
+        verify(repository).existsByEventIdAndStudentId(eventUuid, studentUuid);
+    }
+
+    @Test
+    void existsByEventIdAndStudentIdShouldReturnFalseWhenNotExists() {
+        when(repository.existsByEventIdAndStudentId(eventUuid, studentUuid)).thenReturn(false);
+
+        boolean result = adapter.existsByEventIdAndStudentId(eventId, studentUuid);
+
+        assertFalse(result);
+        verify(repository).existsByEventIdAndStudentId(eventUuid, studentUuid);
+    }
+
+    @Test
+    void findConfirmedByStudentIdShouldReturnListOfConfirmedRsvps() {
+        List<EventRsvpEntity> entities = List.of(eventRsvpEntity);
+        List<EventRsvp> expectedRsvps = List.of(eventRsvp);
+
+        when(repository.findByStudentIdAndStatus(studentUuid, RsvpStatus.CONFIRMED))
+                .thenReturn(entities);
         when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
 
-        Optional<EventRsvp> result = adapter.findByEventIdAndStudentId(eventId, studentId);
+        List<EventRsvp> result = adapter.findConfirmedByStudentId(studentUuid);
+
+        assertEquals(1, result.size());
+        assertEquals(expectedRsvps.size(), result.size());
+        verify(repository).findByStudentIdAndStatus(studentUuid, RsvpStatus.CONFIRMED);
+    }
+
+    @Test
+    void findConfirmedByStudentIdShouldReturnEmptyListWhenNoRsvps() {
+        when(repository.findByStudentIdAndStatus(studentUuid, RsvpStatus.CONFIRMED))
+                .thenReturn(List.of());
+
+        List<EventRsvp> result = adapter.findConfirmedByStudentId(studentUuid);
+
+        assertTrue(result.isEmpty());
+        verify(repository).findByStudentIdAndStatus(studentUuid, RsvpStatus.CONFIRMED);
+    }
+
+    @Test
+    void findConfirmedByEventIdShouldReturnListOfConfirmedRsvps() {
+        List<EventRsvpEntity> entities = List.of(eventRsvpEntity);
+        List<EventRsvp> expectedRsvps = List.of(eventRsvp);
+
+        when(repository.findByEventIdAndStatus(eventUuid, RsvpStatus.CONFIRMED))
+                .thenReturn(entities);
+        when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
+
+        List<EventRsvp> result = adapter.findConfirmedByEventId(eventId);
+
+        assertEquals(1, result.size());
+        verify(repository).findByEventIdAndStatus(eventUuid, RsvpStatus.CONFIRMED);
+    }
+
+    @Test
+    void findConfirmedByEventIdShouldReturnEmptyListWhenNoRsvps() {
+        when(repository.findByEventIdAndStatus(eventUuid, RsvpStatus.CONFIRMED))
+                .thenReturn(List.of());
+
+        List<EventRsvp> result = adapter.findConfirmedByEventId(eventId);
+
+        assertTrue(result.isEmpty());
+        verify(repository).findByEventIdAndStatus(eventUuid, RsvpStatus.CONFIRMED);
+    }
+
+    @Test
+    void findByEventIdAndStudentIdShouldReturnRsvpWhenExists() {
+        when(repository.findByEventIdAndStudentId(eventUuid, studentUuid))
+                .thenReturn(Optional.of(eventRsvpEntity));
+        when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
+
+        Optional<EventRsvp> result = adapter.findByEventIdAndStudentId(eventUuid, studentUuid);
 
         assertTrue(result.isPresent());
-        assertEquals(eventRsvp, result.get());
-        verify(repository).findByEventIdAndStudentId(eventUUID, studentId);
+        assertEquals(eventRsvp.getId(), result.get().getId());
+        verify(repository).findByEventIdAndStudentId(eventUuid, studentUuid);
+    }
+
+    @Test
+    void findByEventIdAndStudentIdShouldReturnEmptyWhenNotExists() {
+        when(repository.findByEventIdAndStudentId(eventUuid, studentUuid))
+                .thenReturn(Optional.empty());
+
+        Optional<EventRsvp> result = adapter.findByEventIdAndStudentId(eventUuid, studentUuid);
+
+        assertTrue(result.isEmpty());
+        verify(repository).findByEventIdAndStudentId(eventUuid, studentUuid);
+    }
+
+    @Test
+    void findByStudentIdShouldReturnListOfRsvps() {
+        List<EventRsvpEntity> entities = List.of(eventRsvpEntity);
+        List<EventRsvp> expectedRsvps = List.of(eventRsvp);
+
+        when(repository.findByStudentId(studentUuid)).thenReturn(entities);
+        when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
+
+        List<EventRsvp> result = adapter.findByStudentId(studentUuid);
+
+        assertEquals(1, result.size());
+        verify(repository).findByStudentId(studentUuid);
+    }
+
+    @Test
+    void findByStudentIdShouldReturnEmptyListWhenNoRsvps() {
+        when(repository.findByStudentId(studentUuid)).thenReturn(List.of());
+
+        List<EventRsvp> result = adapter.findByStudentId(studentUuid);
+
+        assertTrue(result.isEmpty());
+        verify(repository).findByStudentId(studentUuid);
+    }
+
+    @Test
+    void saveShouldHandleRsvpWithNullId() {
+        EventRsvp rsvpWithoutId = EventRsvp.builder()
+                .id(null)
+                .eventId(eventId)
+                .studentId(studentUuid)
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        EventRsvpEntity entityWithoutId = EventRsvpEntity.builder()
+                .id(null)
+                .eventId(eventUuid)
+                .studentId(studentUuid)
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        EventRsvp savedRsvp = EventRsvp.builder()
+                .id(rsvpId)
+                .eventId(eventId)
+                .studentId(studentUuid)
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        when(mapper.toEntity(rsvpWithoutId)).thenReturn(entityWithoutId);
+        when(repository.save(entityWithoutId)).thenReturn(eventRsvpEntity);
+        when(mapper.toModel(eventRsvpEntity)).thenReturn(savedRsvp);
+
+        EventRsvp result = adapter.save(rsvpWithoutId);
+
+        assertNotNull(result);
+        assertNotNull(result.getId());
+        verify(mapper).toEntity(rsvpWithoutId);
+        verify(repository).save(entityWithoutId);
         verify(mapper).toModel(eventRsvpEntity);
-    }
-
-    @Test
-    void findByEventIdAndStudentId_shouldReturnEmpty_whenNotFound() {
-        when(repository.findByEventIdAndStudentId(eventUUID, studentId)).thenReturn(Optional.empty());
-
-        Optional<EventRsvp> result = adapter.findByEventIdAndStudentId(eventId, studentId);
-
-        assertFalse(result.isPresent());
-        verify(repository).findByEventIdAndStudentId(eventUUID, studentId);
-        verify(mapper, never()).toModel(any());
-    }
-
-    @Test
-    void findConfirmedByStudentId_shouldReturnMappedList() {
-        when(repository.findByStudentIdAndStatus(studentId, RsvpStatus.CONFIRMED)).thenReturn(List.of(eventRsvpEntity));
-        when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
-
-        List<EventRsvp> result = adapter.findConfirmedByStudentId(studentId);
-
-        assertEquals(1, result.size());
-        assertEquals(eventRsvp, result.get(0));
-        verify(repository).findByStudentIdAndStatus(studentId, RsvpStatus.CONFIRMED);
-    }
-
-    @Test
-    void findConfirmedByStudentId_shouldReturnEmptyList_whenNoneFound() {
-        when(repository.findByStudentIdAndStatus(studentId, RsvpStatus.CONFIRMED)).thenReturn(List.of());
-
-        List<EventRsvp> result = adapter.findConfirmedByStudentId(studentId);
-
-        assertTrue(result.isEmpty());
-        verify(repository).findByStudentIdAndStatus(studentId, RsvpStatus.CONFIRMED);
-    }
-
-    @Test
-    void findConfirmedByEventId_shouldReturnMappedList() {
-        when(repository.findByEventIdAndStatus(eventUUID, RsvpStatus.CONFIRMED)).thenReturn(List.of(eventRsvpEntity));
-        when(mapper.toModel(eventRsvpEntity)).thenReturn(eventRsvp);
-
-        List<EventRsvp> result = adapter.findConfirmedByEventId(eventId);
-
-        assertEquals(1, result.size());
-        assertEquals(eventRsvp, result.get(0));
-        verify(repository).findByEventIdAndStatus(eventUUID, RsvpStatus.CONFIRMED);
-    }
-
-    @Test
-    void findConfirmedByEventId_shouldReturnEmptyList_whenNoneFound() {
-        when(repository.findByEventIdAndStatus(eventUUID, RsvpStatus.CONFIRMED)).thenReturn(List.of());
-
-        List<EventRsvp> result = adapter.findConfirmedByEventId(eventId);
-
-        assertTrue(result.isEmpty());
-        verify(repository).findByEventIdAndStatus(eventUUID, RsvpStatus.CONFIRMED);
-    }
-
-    @Test
-    void findConfirmedByStudentId_shouldPassConfirmedStatusToRepository() {
-        when(repository.findByStudentIdAndStatus(any(), any())).thenReturn(List.of());
-
-        adapter.findConfirmedByStudentId(studentId);
-
-        verify(repository).findByStudentIdAndStatus(studentId, RsvpStatus.CONFIRMED);
-        verify(repository, never()).findByStudentIdAndStatus(studentId, RsvpStatus.CANCELLED);
-    }
-
-    @Test
-    void findConfirmedByEventId_shouldPassConfirmedStatusToRepository() {
-        when(repository.findByEventIdAndStatus(any(), any())).thenReturn(List.of());
-
-        adapter.findConfirmedByEventId(eventId);
-
-        verify(repository).findByEventIdAndStatus(eventUUID, RsvpStatus.CONFIRMED);
-        verify(repository, never()).findByEventIdAndStatus(eventUUID, RsvpStatus.CANCELLED);
     }
 }

@@ -1,8 +1,9 @@
 package edu.eci.patricia.domain.ports.in;
 
+import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import java.util.UUID;
 
 public interface GetEventByIdPort {
-    EventResponse execute(UUID eventId);
+    EventFeedResponse execute(UUID eventId);
 }

@@ -9,116 +9,112 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class   EventRsvpPersistenceMapperTest {
+class EventRsvpPersistenceMapperTest {
 
-    private EventRsvpPersistenceMapper mapper;
+    private EventRsvpPersistenceMapper eventRsvpPersistenceMapper;
 
     @BeforeEach
     void setUp() {
-        mapper = Mappers.getMapper(EventRsvpPersistenceMapper.class);
+        eventRsvpPersistenceMapper = Mappers.getMapper(EventRsvpPersistenceMapper.class);
     }
 
+    // ── toEntity ──────────────────────────────────────────────
+
     @Test
-    void toEntity_shouldMapAllFields() {
+    void toEntity_shouldMapDomainToEntity_whenConfirmedRsvp() {
         UUID rsvpUUID = UUID.randomUUID();
         UUID eventUUID = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
 
-        EventRsvp eventRsvp = EventRsvp.builder()
+        EventRsvp rsvp = EventRsvp.builder()
                 .id(new RsvpId(rsvpUUID))
                 .eventId(new EventId(eventUUID))
                 .studentId(studentId)
                 .status(RsvpStatus.CONFIRMED)
-                .confirmedAt(now)
-                .cancelledAt(null)
                 .build();
 
-        EventRsvpEntity entity = mapper.toEntity(eventRsvp);
+        EventRsvpEntity result = eventRsvpPersistenceMapper.toEntity(rsvp);
 
-        assertNotNull(entity);
-        assertEquals(rsvpUUID, entity.getId());
-        assertEquals(eventUUID, entity.getEventId());
-        assertEquals(studentId, entity.getStudentId());
-        assertEquals(RsvpStatus.CONFIRMED, entity.getStatus());
-        assertEquals(now, entity.getConfirmedAt());
-        assertNull(entity.getCancelledAt());
+        assertNotNull(result);
+        assertEquals(rsvpUUID, result.getId());
+        assertEquals(eventUUID, result.getEventId());
+        assertEquals(studentId, result.getStudentId());
+        assertEquals(RsvpStatus.CONFIRMED, result.getStatus());
     }
 
     @Test
-    void toModel_shouldMapAllFields() {
+    void toEntity_shouldMapDomainToEntity_whenCancelledRsvp() {
+        EventRsvp rsvp = EventRsvp.builder()
+                .id(RsvpId.generate())
+                .eventId(EventId.generate())
+                .studentId(UUID.randomUUID())
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        EventRsvpEntity result = eventRsvpPersistenceMapper.toEntity(rsvp);
+
+        assertEquals(RsvpStatus.CANCELLED, result.getStatus());
+    }
+
+    // ── toModel ───────────────────────────────────────────────
+
+    @Test
+    void toModel_shouldMapEntityToDomain_whenValidEntity() {
         UUID rsvpUUID = UUID.randomUUID();
         UUID eventUUID = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
 
         EventRsvpEntity entity = EventRsvpEntity.builder()
                 .id(rsvpUUID)
                 .eventId(eventUUID)
                 .studentId(studentId)
                 .status(RsvpStatus.CONFIRMED)
-                .confirmedAt(now)
-                .cancelledAt(null)
                 .build();
 
-        EventRsvp model = mapper.toModel(entity);
+        EventRsvp result = eventRsvpPersistenceMapper.toModel(entity);
 
-        assertNotNull(model);
-        assertEquals(rsvpUUID, model.getId().getValue());
-        assertEquals(eventUUID, model.getEventId().getValue());
-        assertEquals(studentId, model.getStudentId());
-        assertEquals(RsvpStatus.CONFIRMED, model.getStatus());
-        assertEquals(now, model.getConfirmedAt());
-        assertNull(model.getCancelledAt());
+        assertNotNull(result);
+        assertEquals(rsvpUUID, result.getId().getValue());
+        assertEquals(eventUUID, result.getEventId().getValue());
+        assertEquals(studentId, result.getStudentId());
+        assertEquals(RsvpStatus.CONFIRMED, result.getStatus());
     }
 
     @Test
-    void toModel_shouldMapCancelledStatus() {
-        LocalDateTime now = LocalDateTime.now();
-
+    void toModel_shouldMapCancelledStatus_whenCancelledEntity() {
         EventRsvpEntity entity = EventRsvpEntity.builder()
                 .id(UUID.randomUUID())
                 .eventId(UUID.randomUUID())
                 .studentId(UUID.randomUUID())
                 .status(RsvpStatus.CANCELLED)
-                .confirmedAt(null)
-                .cancelledAt(now)
                 .build();
 
-        EventRsvp model = mapper.toModel(entity);
+        EventRsvp result = eventRsvpPersistenceMapper.toModel(entity);
 
-        assertEquals(RsvpStatus.CANCELLED, model.getStatus());
-        assertNull(model.getConfirmedAt());
-        assertEquals(now, model.getCancelledAt());
+        assertEquals(RsvpStatus.CANCELLED, result.getStatus());
     }
 
+    // ── rsvpIdToUUID / uuidToRsvpId ───────────────────────────
+
     @Test
-    void rsvpIdToUUID_shouldReturnUUID_whenRsvpIdIsNotNull() {
+    void rsvpIdToUUID_shouldReturnUUID_whenRsvpIdNotNull() {
         UUID uuid = UUID.randomUUID();
-        RsvpId rsvpId = new RsvpId(uuid);
-
-        UUID result = mapper.rsvpIdToUUID(rsvpId);
-
-        assertEquals(uuid, result);
+        assertEquals(uuid, eventRsvpPersistenceMapper.rsvpIdToUUID(new RsvpId(uuid)));
     }
 
     @Test
     void rsvpIdToUUID_shouldReturnNull_whenRsvpIdIsNull() {
-        UUID result = mapper.rsvpIdToUUID(null);
-
-        assertNull(result);
+        assertNull(eventRsvpPersistenceMapper.rsvpIdToUUID(null));
     }
 
     @Test
-    void uuidToRsvpId_shouldReturnRsvpId_whenUUIDIsNotNull() {
+    void uuidToRsvpId_shouldReturnRsvpId_whenUUIDNotNull() {
         UUID uuid = UUID.randomUUID();
-
-        RsvpId result = mapper.uuidToRsvpId(uuid);
+        RsvpId result = eventRsvpPersistenceMapper.uuidToRsvpId(uuid);
 
         assertNotNull(result);
         assertEquals(uuid, result.getValue());
@@ -126,33 +122,26 @@ class   EventRsvpPersistenceMapperTest {
 
     @Test
     void uuidToRsvpId_shouldReturnNull_whenUUIDIsNull() {
-        RsvpId result = mapper.uuidToRsvpId(null);
-
-        assertNull(result);
+        assertNull(eventRsvpPersistenceMapper.uuidToRsvpId(null));
     }
 
+    // ── eventIdToUUID / uuidToEventId ─────────────────────────
+
     @Test
-    void eventIdToUUID_shouldReturnUUID_whenEventIdIsNotNull() {
+    void eventIdToUUID_shouldReturnUUID_whenEventIdNotNull() {
         UUID uuid = UUID.randomUUID();
-        EventId eventId = new EventId(uuid);
-
-        UUID result = mapper.eventIdToUUID(eventId);
-
-        assertEquals(uuid, result);
+        assertEquals(uuid, eventRsvpPersistenceMapper.eventIdToUUID(new EventId(uuid)));
     }
 
     @Test
     void eventIdToUUID_shouldReturnNull_whenEventIdIsNull() {
-        UUID result = mapper.eventIdToUUID(null);
-
-        assertNull(result);
+        assertNull(eventRsvpPersistenceMapper.eventIdToUUID(null));
     }
 
     @Test
-    void uuidToEventId_shouldReturnEventId_whenUUIDIsNotNull() {
+    void uuidToEventId_shouldReturnEventId_whenUUIDNotNull() {
         UUID uuid = UUID.randomUUID();
-
-        EventId result = mapper.uuidToEventId(uuid);
+        EventId result = eventRsvpPersistenceMapper.uuidToEventId(uuid);
 
         assertNotNull(result);
         assertEquals(uuid, result.getValue());
@@ -160,8 +149,6 @@ class   EventRsvpPersistenceMapperTest {
 
     @Test
     void uuidToEventId_shouldReturnNull_whenUUIDIsNull() {
-        EventId result = mapper.uuidToEventId(null);
-
-        assertNull(result);
+        assertNull(eventRsvpPersistenceMapper.uuidToEventId(null));
     }
 }

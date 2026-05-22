@@ -62,4 +62,9 @@ public class EventRepositoryAdapter implements EventRepositoryPort {
         return repository.findByStatus(status)
                 .stream().map(mapper::toModel).toList();
     }
+
+    @Override
+    public boolean existsByName(String name) {
+        return repository.existsByName(name);
+    }
 }

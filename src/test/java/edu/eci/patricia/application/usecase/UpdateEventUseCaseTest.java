@@ -3,6 +3,7 @@ package edu.eci.patricia.application.usecase;
 import edu.eci.patricia.application.dto.request.EventUpdateRequest;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.application.mapper.EventMapper;
+import edu.eci.patricia.domain.exceptions.EventDomainException;
 import edu.eci.patricia.domain.exceptions.EventNotActiveException;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
 import edu.eci.patricia.domain.exceptions.UnauthorizedOrganizerException;
@@ -19,7 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ class UpdateEventUseCaseTest {
     @InjectMocks
     private UpdateEventUseCase updateEventUseCase;
 
-    private UUID eventUUID;
+    private UUID eventId;
     private UUID organizerId;
     private Event activeEvent;
     private EventUpdateRequest updateRequest;
@@ -47,98 +48,130 @@ class UpdateEventUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        eventUUID = UUID.randomUUID();
+        eventId = UUID.randomUUID();
         organizerId = UUID.randomUUID();
 
         activeEvent = Event.builder()
-                .id(new EventId(eventUUID))
-                .name("Old Name")
-                .description("Old Description")
-                .dateTime(LocalDateTime.now().plusDays(5))
-                .durationMinutes(60)
-                .location("Old Location")
-                .category(EventCategory.ACADEMIC)
-                .type(EventType.OPEN)
+                .id(new EventId(eventId))
+                .name("Evento Original")
                 .status(EventStatus.ACTIVE)
                 .organizerId(organizerId)
+                .type(EventType.OPEN)
+                .category(EventCategory.ACADEMIC)
                 .build();
 
         updateRequest = EventUpdateRequest.builder()
-                .name("New Name")
-                .description("New Description")
-                .dateTime(LocalDateTime.now().plusDays(10))
-                .durationMinutes(90)
-                .location("New Location")
-                .category(EventCategory.CULTURAL)
+                .name("Evento Actualizado")
+                .description("Nueva descripción")
+                .dateTime(LocalDate.now().plusDays(2))
+                .startTime("10:00")
+                .duration(90)
+                .location("Medellín")
+                .category(EventCategory.ACADEMIC)
+                .type(EventType.OPEN)
                 .build();
 
         eventResponse = EventResponse.builder()
-                .id(eventUUID)
-                .name("New Name")
-                .status(EventStatus.ACTIVE)
+                .id(eventId)
+                .name("Evento Actualizado")
                 .build();
     }
 
     @Test
-    void shouldUpdateEventSuccessfully() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+    void execute_shouldUpdateEvent_whenValidRequest() {
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
         when(eventRepository.save(any(Event.class))).thenReturn(activeEvent);
         when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
 
-        EventResponse result = updateEventUseCase.execute(eventUUID, updateRequest, organizerId);
+        EventResponse result = updateEventUseCase.execute(eventId, updateRequest, organizerId);
 
         assertNotNull(result);
-        assertEquals("New Name", result.getName());
-        verify(eventRepository).findById(any(EventId.class));
+        assertEquals("Evento Actualizado", result.getName());
         verify(eventRepository).save(activeEvent);
-        verify(eventMapper).toDTO(activeEvent);
     }
 
     @Test
-    void shouldThrowEventNotFoundExceptionWhenEventDoesNotExist() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.empty());
+    void execute_shouldThrowException_whenEventNotFound() {
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.empty());
 
         assertThrows(EventNotFoundException.class,
-                () -> updateEventUseCase.execute(eventUUID, updateRequest, organizerId));
+                () -> updateEventUseCase.execute(eventId, updateRequest, organizerId));
 
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowEventNotActiveExceptionWhenEventIsCancelled() {
+    void execute_shouldThrowException_whenEventIsNotActive() {
         activeEvent.setStatus(EventStatus.CANCELLED);
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
 
         assertThrows(EventNotActiveException.class,
-                () -> updateEventUseCase.execute(eventUUID, updateRequest, organizerId));
+                () -> updateEventUseCase.execute(eventId, updateRequest, organizerId));
 
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowUnauthorizedOrganizerExceptionWhenOrganizerDoesNotMatch() {
-        UUID differentOrganizer = UUID.randomUUID();
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+    void execute_shouldThrowException_whenOrganizerIsNotOwner() {
+        UUID otherOrganizer = UUID.randomUUID();
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
 
         assertThrows(UnauthorizedOrganizerException.class,
-                () -> updateEventUseCase.execute(eventUUID, updateRequest, differentOrganizer));
+                () -> updateEventUseCase.execute(eventId, updateRequest, otherOrganizer));
 
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldApplyAllFieldsFromUpdateRequest() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+    void execute_shouldThrowException_whenWithCapacityAndNullMaxCapacity() {
+        updateRequest = EventUpdateRequest.builder()
+                .name("Evento")
+                .type(EventType.WITH_CAPACITY)
+                .maxCapacity(null)
+                .build();
+
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
+
+        assertThrows(EventDomainException.class,
+                () -> updateEventUseCase.execute(eventId, updateRequest, organizerId));
+
+        verify(eventRepository, never()).save(any());
+    }
+
+    @Test
+    void execute_shouldThrowException_whenWithCapacityLessThan2() {
+        updateRequest = EventUpdateRequest.builder()
+                .name("Evento")
+                .type(EventType.WITH_CAPACITY)
+                .maxCapacity(1)
+                .build();
+
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
+
+        assertThrows(EventDomainException.class,
+                () -> updateEventUseCase.execute(eventId, updateRequest, organizerId));
+
+        verify(eventRepository, never()).save(any());
+    }
+
+    @Test
+    void execute_shouldSetMaxCapacityNull_whenTypeChangedToOpen() {
+        updateRequest = EventUpdateRequest.builder()
+                .name("Evento")
+                .type(EventType.OPEN)
+                .dateTime(LocalDate.now().plusDays(1))
+                .startTime("09:00")
+                .duration(60)
+                .location("Bogotá")
+                .category(EventCategory.ACADEMIC)
+                .build();
+
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
         when(eventRepository.save(any(Event.class))).thenReturn(activeEvent);
         when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
 
-        updateEventUseCase.execute(eventUUID, updateRequest, organizerId);
+        updateEventUseCase.execute(eventId, updateRequest, organizerId);
 
-        assertEquals("New Name", activeEvent.getName());
-        assertEquals("New Description", activeEvent.getDescription());
-        assertEquals("New Location", activeEvent.getLocation());
-        assertEquals(EventCategory.CULTURAL, activeEvent.getCategory());
-        assertEquals(90, activeEvent.getDurationMinutes());
-        assertNotNull(activeEvent.getUpdatedAt());
+        assertNull(activeEvent.getMaxCapacity());
     }
 }

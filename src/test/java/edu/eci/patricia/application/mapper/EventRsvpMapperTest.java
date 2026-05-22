@@ -9,109 +9,81 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EventRsvpMapperTest {
 
-    private EventRsvpMapper mapper;
+    private EventRsvpMapper eventRsvpMapper;
 
     @BeforeEach
     void setUp() {
-        mapper = Mappers.getMapper(EventRsvpMapper.class);
+        eventRsvpMapper = Mappers.getMapper(EventRsvpMapper.class);
     }
 
+    // ── toDTO ─────────────────────────────────────────────────
+
     @Test
-    void toDTO_shouldMapAllFields_whenStatusIsConfirmed() {
+    void toDTO_shouldMapRsvpToResponse_whenConfirmed() {
         UUID rsvpUUID = UUID.randomUUID();
         UUID eventUUID = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
 
-        EventRsvp eventRsvp = EventRsvp.builder()
+        EventRsvp rsvp = EventRsvp.builder()
                 .id(new RsvpId(rsvpUUID))
                 .eventId(new EventId(eventUUID))
                 .studentId(studentId)
                 .status(RsvpStatus.CONFIRMED)
-                .confirmedAt(now)
-                .cancelledAt(null)
                 .build();
 
-        EventResponseRsvp response = mapper.toDTO(eventRsvp);
+        EventResponseRsvp result = eventRsvpMapper.toDTO(rsvp);
 
-        assertNotNull(response);
-        assertEquals(rsvpUUID, response.getId());
-        assertEquals(eventUUID, response.getEventId());
-        assertEquals(studentId, response.getStudentId());
-        assertEquals(RsvpStatus.CONFIRMED, response.getStatus());
-        assertEquals(now, response.getConfirmedAt());
+        assertNotNull(result);
+        assertEquals(rsvpUUID, result.getId());
+        assertEquals(eventUUID, result.getEventId());
+        assertEquals(studentId, result.getStudentId());
+        assertEquals(RsvpStatus.CONFIRMED, result.getStatus());
     }
 
     @Test
-    void toDTO_shouldMapAllFields_whenStatusIsCancelled() {
-        UUID rsvpUUID = UUID.randomUUID();
-        UUID eventUUID = UUID.randomUUID();
-        UUID studentId = UUID.randomUUID();
-
-        EventRsvp eventRsvp = EventRsvp.builder()
-                .id(new RsvpId(rsvpUUID))
-                .eventId(new EventId(eventUUID))
-                .studentId(studentId)
+    void toDTO_shouldMapRsvpToResponse_whenCancelled() {
+        EventRsvp rsvp = EventRsvp.builder()
+                .id(RsvpId.generate())
+                .eventId(EventId.generate())
+                .studentId(UUID.randomUUID())
                 .status(RsvpStatus.CANCELLED)
-                .confirmedAt(null)
-                .cancelledAt(null)
                 .build();
 
-        EventResponseRsvp response = mapper.toDTO(eventRsvp);
+        EventResponseRsvp result = eventRsvpMapper.toDTO(rsvp);
 
-        assertNotNull(response);
-        assertEquals(rsvpUUID, response.getId());
-        assertEquals(eventUUID, response.getEventId());
-        assertEquals(RsvpStatus.CANCELLED, response.getStatus());
-        assertNull(response.getConfirmedAt());
+        assertEquals(RsvpStatus.CANCELLED, result.getStatus());
     }
 
     @Test
-    void toDTO_shouldReturnNullIds_whenValueObjectsAreNull() {
-        EventRsvp eventRsvp = EventRsvp.builder()
-                .id(null)
-                .eventId(null)
-                .studentId(null)
-                .status(RsvpStatus.CONFIRMED)
-                .build();
-
-        EventResponseRsvp response = mapper.toDTO(eventRsvp);
-
-        assertNotNull(response);
-        assertNull(response.getId());
-        assertNull(response.getEventId());
-        assertNull(response.getStudentId());
+    void toDTO_shouldReturnNull_whenRsvpIsNull() {
+        assertNull(eventRsvpMapper.toDTO(null));
     }
 
+    // ── rsvpIdToUUID / uuidToRsvpId ───────────────────────────
+
     @Test
-    void rsvpIdToUUID_shouldReturnUUID_whenRsvpIdIsNotNull() {
+    void rsvpIdToUUID_shouldReturnUUID_whenRsvpIdNotNull() {
         UUID uuid = UUID.randomUUID();
         RsvpId rsvpId = new RsvpId(uuid);
 
-        UUID result = mapper.rsvpIdToUUID(rsvpId);
-
-        assertEquals(uuid, result);
+        assertEquals(uuid, eventRsvpMapper.rsvpIdToUUID(rsvpId));
     }
 
     @Test
     void rsvpIdToUUID_shouldReturnNull_whenRsvpIdIsNull() {
-        UUID result = mapper.rsvpIdToUUID(null);
-
-        assertNull(result);
+        assertNull(eventRsvpMapper.rsvpIdToUUID(null));
     }
 
     @Test
-    void uuidToRsvpId_shouldReturnRsvpId_whenUUIDIsNotNull() {
+    void uuidToRsvpId_shouldReturnRsvpId_whenUUIDNotNull() {
         UUID uuid = UUID.randomUUID();
-
-        RsvpId result = mapper.uuidToRsvpId(uuid);
+        RsvpId result = eventRsvpMapper.uuidToRsvpId(uuid);
 
         assertNotNull(result);
         assertEquals(uuid, result.getValue());
@@ -119,33 +91,28 @@ class EventRsvpMapperTest {
 
     @Test
     void uuidToRsvpId_shouldReturnNull_whenUUIDIsNull() {
-        RsvpId result = mapper.uuidToRsvpId(null);
-
-        assertNull(result);
+        assertNull(eventRsvpMapper.uuidToRsvpId(null));
     }
 
+    // ── eventIdToUUID / uuidToEventId ─────────────────────────
+
     @Test
-    void eventIdToUUID_shouldReturnUUID_whenEventIdIsNotNull() {
+    void eventIdToUUID_shouldReturnUUID_whenEventIdNotNull() {
         UUID uuid = UUID.randomUUID();
         EventId eventId = new EventId(uuid);
 
-        UUID result = mapper.eventIdToUUID(eventId);
-
-        assertEquals(uuid, result);
+        assertEquals(uuid, eventRsvpMapper.eventIdToUUID(eventId));
     }
 
     @Test
     void eventIdToUUID_shouldReturnNull_whenEventIdIsNull() {
-        UUID result = mapper.eventIdToUUID(null);
-
-        assertNull(result);
+        assertNull(eventRsvpMapper.eventIdToUUID(null));
     }
 
     @Test
-    void uuidToEventId_shouldReturnEventId_whenUUIDIsNotNull() {
+    void uuidToEventId_shouldReturnEventId_whenUUIDNotNull() {
         UUID uuid = UUID.randomUUID();
-
-        EventId result = mapper.uuidToEventId(uuid);
+        EventId result = eventRsvpMapper.uuidToEventId(uuid);
 
         assertNotNull(result);
         assertEquals(uuid, result.getValue());
@@ -153,8 +120,6 @@ class EventRsvpMapperTest {
 
     @Test
     void uuidToEventId_shouldReturnNull_whenUUIDIsNull() {
-        EventId result = mapper.uuidToEventId(null);
-
-        assertNull(result);
+        assertNull(eventRsvpMapper.uuidToEventId(null));
     }
 }

@@ -10,130 +10,188 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EventPersistenceMapperTest {
 
-    private EventPersistenceMapper mapper;
+    private EventPersistenceMapper eventPersistenceMapper;
 
     @BeforeEach
     void setUp() {
-        mapper = Mappers.getMapper(EventPersistenceMapper.class);
+        eventPersistenceMapper = Mappers.getMapper(EventPersistenceMapper.class);
     }
 
+    // ── toEntity ──────────────────────────────────────────────
+
     @Test
-    void toEntity_shouldMapAllFields() {
-        UUID organizerId = UUID.randomUUID();
+    void toEntity_shouldMapDomainToEntity_whenValidEvent() {
         UUID id = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
+        UUID organizerId = UUID.randomUUID();
 
         Event event = Event.builder()
                 .id(new EventId(id))
-                .name("Tech Talk")
-                .description("A tech event")
-                .dateTime(now)
-                .durationMinutes(90)
-                .location("Room 101")
-                .category(EventCategory.CULTURAL)
+                .name("Evento Test")
+                .description("Descripción")
+                .dateTime(LocalDate.now().plusDays(1))
+                .startTime(LocalTime.of(9, 30))
+                .durationMinutes(60)
+                .location("Bogotá")
+                .category(EventCategory.ACADEMIC)
                 .type(EventType.OPEN)
-                .maxCapacity(100)
-                .availableCapacity(80)
                 .status(EventStatus.ACTIVE)
+                .maxCapacity(null)
+                .availableCapacity(null)
                 .organizerId(organizerId)
-                .qrCode("qr-code-value")
-                .createdAt(now)
-                .updatedAt(now)
+                .qrCode("QR-" + id)
                 .build();
 
-        EventEntity entity = mapper.toEntity(event);
+        EventEntity result = eventPersistenceMapper.toEntity(event);
 
-        assertNotNull(entity);
-        assertEquals(id, entity.getId());
-        assertEquals("Tech Talk", entity.getName());
-        assertEquals("A tech event", entity.getDescription());
-        assertEquals(now, entity.getDateTime());
-        assertEquals(90, entity.getDurationMinutes());
-        assertEquals("Room 101", entity.getLocation());
-        assertEquals(EventCategory.CULTURAL, entity.getCategory());
-        assertEquals(EventType.OPEN, entity.getType());
-        assertEquals(100, entity.getMaxCapacity());
-        assertEquals(80, entity.getAvailableCapacity());
-        assertEquals(EventStatus.ACTIVE, entity.getStatus());
-        assertEquals(organizerId, entity.getOrganizerId());
-        assertEquals("qr-code-value", entity.getQrCode());
-        assertEquals(now, entity.getCreatedAt());
-        assertEquals(now, entity.getUpdatedAt());
+        assertNotNull(result);
+        assertEquals(id, result.getId());
+        assertEquals("Evento Test", result.getName());
+        assertEquals("Descripción", result.getDescription());
+        assertEquals("09:30", result.getStartTime());
+        assertEquals(60, result.getDurationMinutes());
+        assertEquals("Bogotá", result.getLocation());
+        assertEquals(EventCategory.ACADEMIC, result.getCategory());
+        assertEquals(EventType.OPEN, result.getType());
+        assertEquals(EventStatus.ACTIVE, result.getStatus());
+        assertEquals(organizerId, result.getOrganizerId());
     }
 
     @Test
-    void toModel_shouldMapAllFields() {
+    void toEntity_shouldMapStartTime_asString() {
+        Event event = Event.builder()
+                .id(EventId.generate())
+                .name("Evento")
+                .startTime(LocalTime.of(8, 0))
+                .build();
+
+        EventEntity result = eventPersistenceMapper.toEntity(event);
+
+        assertEquals("08:00", result.getStartTime());
+    }
+
+    @Test
+    void toEntity_shouldMapNullStartTime_whenStartTimeIsNull() {
+        Event event = Event.builder()
+                .id(EventId.generate())
+                .name("Evento")
+                .startTime(null)
+                .build();
+
+        EventEntity result = eventPersistenceMapper.toEntity(event);
+
+        assertNull(result.getStartTime());
+    }
+
+    // ── toModel ───────────────────────────────────────────────
+
+    @Test
+    void toModel_shouldMapEntityToDomain_whenValidEntity() {
         UUID id = UUID.randomUUID();
         UUID organizerId = UUID.randomUUID();
-        LocalDateTime now = LocalDateTime.now();
 
         EventEntity entity = EventEntity.builder()
                 .id(id)
-                .name("Tech Talk")
-                .description("A tech event")
-                .dateTime(now)
-                .durationMinutes(90)
-                .location("Room 101")
-                .category(EventCategory.CULTURAL)
-                .type(EventType.OPEN)
-                .maxCapacity(100)
-                .availableCapacity(80)
+                .name("Evento Entity")
+                .description("Desc")
+                .dateTime(LocalDate.now().plusDays(1))
+                .startTime("14:00")
+                .durationMinutes(45)
+                .location("Cali")
+                .category(EventCategory.ACADEMIC)
+                .type(EventType.WITH_CAPACITY)
                 .status(EventStatus.ACTIVE)
+                .maxCapacity(30)
+                .availableCapacity(25)
                 .organizerId(organizerId)
-                .qrCode("qr-code-value")
-                .createdAt(now)
-                .updatedAt(now)
+                .qrCode("QR-" + id)
                 .build();
 
-        Event model = mapper.toModel(entity);
+        Event result = eventPersistenceMapper.toModel(entity);
 
-        assertNotNull(model);
-        assertEquals(id, model.getId().getValue());
-        assertEquals("Tech Talk", model.getName());
-        assertEquals("A tech event", model.getDescription());
-        assertEquals(now, model.getDateTime());
-        assertEquals(90, model.getDurationMinutes());
-        assertEquals("Room 101", model.getLocation());
-        assertEquals(EventCategory.CULTURAL, model.getCategory());
-        assertEquals(EventType.OPEN, model.getType());
-        assertEquals(100, model.getMaxCapacity());
-        assertEquals(80, model.getAvailableCapacity());
-        assertEquals(EventStatus.ACTIVE, model.getStatus());
-        assertEquals(organizerId, model.getOrganizerId());
-        assertEquals("qr-code-value", model.getQrCode());
-        assertEquals(now, model.getCreatedAt());
-        assertEquals(now, model.getUpdatedAt());
+        assertNotNull(result);
+        assertEquals(id, result.getId().getValue());
+        assertEquals("Evento Entity", result.getName());
+        assertEquals(LocalTime.of(14, 0), result.getStartTime());
+        assertEquals(45, result.getDurationMinutes());
+        assertEquals(EventStatus.ACTIVE, result.getStatus());
+        assertEquals(organizerId, result.getOrganizerId());
     }
 
     @Test
-    void eventIdToUUID_shouldReturnUUID_whenEventIdIsNotNull() {
+    void toModel_shouldParseStartTime_fromString() {
+        EventEntity entity = EventEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Evento")
+                .startTime("08:30")
+                .build();
+
+        Event result = eventPersistenceMapper.toModel(entity);
+
+        assertEquals(LocalTime.of(8, 30), result.getStartTime());
+    }
+
+    @Test
+    void toModel_shouldReturnNullStartTime_whenStartTimeIsNull() {
+        EventEntity entity = EventEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Evento")
+                .startTime(null)
+                .build();
+
+        Event result = eventPersistenceMapper.toModel(entity);
+
+        assertNull(result.getStartTime());
+    }
+
+    // ── localTimeToString / stringToLocalTime ─────────────────
+
+    @Test
+    void localTimeToString_shouldReturnFormattedString_whenLocalTimeNotNull() {
+        String result = eventPersistenceMapper.localTimeToString(LocalTime.of(10, 45));
+        assertEquals("10:45", result);
+    }
+
+    @Test
+    void localTimeToString_shouldReturnNull_whenLocalTimeIsNull() {
+        assertNull(eventPersistenceMapper.localTimeToString(null));
+    }
+
+    @Test
+    void stringToLocalTime_shouldReturnLocalTime_whenValidString() {
+        LocalTime result = eventPersistenceMapper.stringToLocalTime("08:30");
+        assertEquals(LocalTime.of(8, 30), result);
+    }
+
+    @Test
+    void stringToLocalTime_shouldReturnNull_whenStringIsNull() {
+        assertNull(eventPersistenceMapper.stringToLocalTime(null));
+    }
+
+    // ── eventIdToUUID / uuidToEventId ─────────────────────────
+
+    @Test
+    void eventIdToUUID_shouldReturnUUID_whenEventIdNotNull() {
         UUID uuid = UUID.randomUUID();
-        EventId eventId = new EventId(uuid);
-
-        UUID result = mapper.eventIdToUUID(eventId);
-
-        assertEquals(uuid, result);
+        assertEquals(uuid, eventPersistenceMapper.eventIdToUUID(new EventId(uuid)));
     }
 
     @Test
     void eventIdToUUID_shouldReturnNull_whenEventIdIsNull() {
-        UUID result = mapper.eventIdToUUID(null);
-
-        assertNull(result);
+        assertNull(eventPersistenceMapper.eventIdToUUID(null));
     }
 
     @Test
-    void uuidToEventId_shouldReturnEventId_whenUUIDIsNotNull() {
+    void uuidToEventId_shouldReturnEventId_whenUUIDNotNull() {
         UUID uuid = UUID.randomUUID();
-
-        EventId result = mapper.uuidToEventId(uuid);
+        EventId result = eventPersistenceMapper.uuidToEventId(uuid);
 
         assertNotNull(result);
         assertEquals(uuid, result.getValue());
@@ -141,34 +199,6 @@ class EventPersistenceMapperTest {
 
     @Test
     void uuidToEventId_shouldReturnNull_whenUUIDIsNull() {
-        EventId result = mapper.uuidToEventId(null);
-
-        assertNull(result);
-    }
-
-    @Test
-    void toEntity_shouldHandleNullId() {
-        Event event = Event.builder()
-                .id(null)
-                .name("No ID Event")
-                .build();
-
-        EventEntity entity = mapper.toEntity(event);
-
-        assertNotNull(entity);
-        assertNull(entity.getId());
-    }
-
-    @Test
-    void toModel_shouldHandleNullId() {
-        EventEntity entity = EventEntity.builder()
-                .id(null)
-                .name("No ID Entity")
-                .build();
-
-        Event model = mapper.toModel(entity);
-
-        assertNotNull(model);
-        assertNull(model.getId());
+        assertNull(eventPersistenceMapper.uuidToEventId(null));
     }
 }
