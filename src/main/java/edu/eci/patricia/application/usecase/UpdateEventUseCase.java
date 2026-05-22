@@ -8,15 +8,20 @@ import edu.eci.patricia.domain.exceptions.EventNotActiveException;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
 import edu.eci.patricia.domain.exceptions.UnauthorizedOrganizerException;
 import edu.eci.patricia.domain.model.Event;
+import edu.eci.patricia.domain.model.EventRsvp;
 import edu.eci.patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.domain.model.enums.EventType;
 import edu.eci.patricia.domain.ports.in.UpdateEventPort;
 import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
+import edu.eci.patricia.domain.ports.out.EventRsvpRepositoryPort;
 import edu.eci.patricia.domain.valueobjects.EventId;
+import edu.eci.patricia.infrastructure.messaging.EventChangePublisher;
+import edu.eci.patricia.infrastructure.messaging.dto.EventChangeEventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,6 +30,8 @@ public class UpdateEventUseCase implements UpdateEventPort {
 
     private final EventRepositoryPort eventRepository;
     private final EventMapper eventMapper;
+    private final EventRsvpRepositoryPort rsvpRepository;
+    private final EventChangePublisher eventChangePublisher;
 
     @Override
     public EventResponse execute(UUID eventId, EventUpdateRequest request, UUID organizerId) {
@@ -61,6 +68,16 @@ public class UpdateEventUseCase implements UpdateEventPort {
             event.setMaxCapacity(null);
         } else {
             event.setMaxCapacity(request.getMaxCapacity());
+        }
+
+        List<EventRsvp> rsvps = rsvpRepository.findConfirmedByEventId(new EventId(eventId));
+        for (EventRsvp rsvp : rsvps) {
+            eventChangePublisher.publish(EventChangeEventDto.builder()
+                    .targetUserId(rsvp.getStudentId())
+                    .eventId(eventId)
+                    .eventName(event.getName())
+                    .changeDescription("modificado")
+                    .build());
         }
 
 
