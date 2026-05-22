@@ -1,24 +1,24 @@
 <div align="center">
 
-# 📚 PATRIC.IA — Microservicio de eventos
+# PATRIC.IA — Microservicio de Eventos Universitarios (M09)
 
-### *"SLOGAN"*
+### *"Gestionando momentos, conectando la comunidad."*
 
 ---
 
-### 🛠️ Stack Tecnológico
+### Stack Tecnológico
 
-![Java](https://img.shields.io/badge/Java-17-007396?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-007396?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-7.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 
-### ☁️ Infraestructura & Calidad
+### Infraestructura & Calidad
 
-![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)
 
-### 🏗️ Arquitectura
+### Arquitectura
 
 ![Hexagonal](https://img.shields.io/badge/Architecture-Hexagonal-blueviolet?style=for-the-badge)
 ![Clean Architecture](https://img.shields.io/badge/Clean-Architecture-blue?style=for-the-badge)
@@ -28,726 +28,312 @@
 
 ---
 
-## 📑 Tabla de Contenidos
+## Tabla de Contenidos
 
-1. [👤 Integrantes](#1--integrantes)
-2. [🎯 Objetivo del Microservicio](#2--objetivo-del-microservicio)
-3. [⚡ Funcionalidades Principales](#3--funcionalidades-principales)
-4. [📋 Estrategia de Versionamiento y Branches](#4--manejo-de-estrategia-de-versionamiento-y-branches)
-    - [4.1 Convenciones para crear ramas](#41-convenciones-para-crear-ramas)
-5. [⚙️ Tecnologías Utilizadas](#5--tecnologias-utilizadas)
-6. [🧩 Funcionalidad](#6--funcionalidad)
-7. [📊 Diagramas](#7--diagramas)
-8. [⚠️ Manejo de Errores](#8--manejo-de-errores)
-9. [🧪 Evidencia de Pruebas y Ejecución](#9--evidencia-de-las-pruebas-y-como-ejecutarlas)
-10. [🗂️ Organización del Código](#10--codigo-de-la-implementacion-organizado-en-las-respectivas-carpetas)
-11. [🚀 Ejecución del Proyecto](#11--ejecucion-del-proyecto)
-12. [☁️ CI/CD y Despliegue en Azure](#12--evidencia-de-cicd-y-despliegue-en-azure)
-13. [🤝 Contribuciones](#13--contribuciones)
+1. [Integrantes](#1-integrantes)
+2. [Tecnologías Utilizadas](#2-tecnologías-utilizadas)
+3. [Descripción del Microservicio](#3-descripción-del-microservicio)
+4. [Cómo Funciona](#4-cómo-funciona)
+5. [Diagrama de Datos](#5-diagrama-de-datos)
+6. [Diagrama de Clases](#6-diagrama-de-clases)
+7. [Diagrama de Componentes](#7-diagrama-de-componentes)
+8. [Funcionalidades Principales](#8-funcionalidades-principales)
+9. [Endpoints](#9-endpoints)
+10. [Colas de Mensajería](#10-colas-de-mensajería)
+11. [Evidencia de Pruebas](#11-evidencia-de-pruebas)
+12. [Evidencia de Cobertura](#12-evidencia-de-cobertura)
+13. [Cómo Ejecutar](#13-cómo-ejecutar)
+14. [Evidencia CI/CD](#14-evidencia-cicd)
+15. [Link Swagger](#15-link-swagger)
+16. [Estructura del Código](#16-estructura-del-código)
+17. [Código Documentado](#17-código-documentado)
+18. [Conexiones Externas](#18-conexiones-externas)
+19. [Pipeline de Desarrollo](#19-pipeline-de-desarrollo)
+20. [Pipeline de Producción](#20-pipeline-de-producción)
+21. [Dockerizado](#21-dockerizado)
+22. [Versionamiento](#22-versionamiento)
 
 ---
 
-## 1. 👤 Integrantes:
+## 1. Integrantes
 
 - Tomas Espitia Quiroga
 - Sebastian Gonzalez Aranguren
 - Camilo Cristancho
 - Andres Pineda
 
-## 2. 🎯 Objetivo del microservicio
+---
+
+## 2. Tecnologías Utilizadas
+
+| **Tecnología / Herramienta** | **Uso principal en el proyecto** |
+|---|---|
+| **Java 21 (OpenJDK)** | Lenguaje base con soporte para Spring Boot. |
+| **Spring Boot 3.3.0** | Framework principal para APIs REST. |
+| **Spring Web** | Exposición de endpoints REST (controladores HTTP). |
+| **Spring Security + JWT** | Protección de endpoints mediante autenticación basada en tokens. |
+| **Spring Data MongoDB** | Integración con base de datos NoSQL mediante patrón Repository. |
+| **MongoDB (Atlas / Local)** | Base de datos NoSQL principal. |
+| **Apache Maven** | Gestión de dependencias y automatización de builds. |
+| **Lombok 1.18.38** | Reducción de boilerplate (`@Getter`, `@Builder`, etc.). |
+| **MapStruct 1.5.5** | Mapeo automático entre entidades y DTOs. |
+| **JUnit 5 & Mockito** | Framework de pruebas unitarias y simulación de dependencias. |
+| **JaCoCo 0.8.13** | Análisis de cobertura de pruebas integrado al pipeline. |
+| **SpringDoc OpenAPI 2.6.0** | Swagger UI para documentación de API. |
+| **Docker** | Contenedorización para despliegues consistentes. |
 
 ---
 
-El microservicio de Eventos Universitarios tiene como objetivo gestionar el ciclo de 
-vida completo de los eventos académicos, culturales, deportivos y de bienestar que se realizan en la 
-Escuela Colombiana de Ingeniería Julio Garavito. Además, incorpora la posibilidad de cancelar eventos 
-e inscripciones garantizando una experiencia confiable y organizada para toda la comunidad estudiantil.
+## 3. Descripción del Microservicio
 
-## 3. ⚡ Funcionalidades principales
+El microservicio de **Eventos Universitarios (M09)** tiene como objetivo gestionar el ciclo de vida completo de los eventos académicos, culturales, deportivos y de bienestar que se realizan en el campus. Adicionalmente, permite la gestión de RSVP (Inscripciones), control de aforos y confirmación de asistencias para los estudiantes.
+
+Puerto: `8080` (por defecto). Integrado con **MongoDB** como base de datos principal.
 
 ---
+
+## 4. Cómo Funciona
+
+### Arquitectura Hexagonal (Ports & Adapters)
+
+El servicio sigue los principios de la Arquitectura Limpia, dividiendo la aplicación en tres capas principales:
+
+- **Dominio:** Contiene las entidades principales (`Event`, `EventRsvp`), los `ValueObjects` y las interfaces (`Ports`).
+- **Aplicación:** Casos de uso (`CreateEventUseCase`, `GetEventsUseCase`, `CreateRsvpUseCase`, etc.) y sus correspondientes `Mappers`.
+- **Infraestructura & Entrypoints:** Implementaciones de adaptadores a base de datos (MongoDB) y los controladores REST.
+
+### Patrones de Diseño
+
+| Patrón | Descripción |
+|---|---|
+| **Ports & Adapters** | Múltiples puertos de entrada (Casos de uso) y puertos de salida (Repositorios). |
+| **Repository** | Acceso a MongoDB abstraído a través de interfaces de dominio. |
+| **DTO (Data Transfer Object)** | Separación entre la representación del dato y la solicitud REST. |
+| **Mapper** | Conversión entre Entidad, Dominio y DTO gestionado por MapStruct. |
+| **Global Exception Handler** | `@RestControllerAdvice` para capturar y estandarizar los errores HTTP. |
+
+---
+
+## 5. Diagrama de Datos
+
+> 📷 **[Insert Image: Diagrama_Base_Datos.png]**
+
+El modelo de datos está orientado a documentos en MongoDB e incluye colecciones para Eventos e Inscripciones (RSVP).
+
+---
+
+## 6. Diagrama de Clases
+
+> 📷 **[Insert Image: Diagrama_Clases.png]**
+
+Resumen del dominio:
+- **`Event`**: Contiene `name`, `description`, `dateTime`, `location`, `category`, `type`, `maxCapacity`, etc.
+- **`EventRsvp`**: Vincula un estudiante (`studentId`) con un evento (`eventId`), registrando fecha de confirmación.
+
+---
+
+## 7. Diagrama de Componentes
+
+> 📷 **[Insert Image: Diagrama_Componentes_General.png]**
+
+> 📷 **[Insert Image: Diagrama_Componentes_Especifico.png]**
+
+| Componente | Tipo | Interfaz |
+|---|---|---|
+| `EventController` | REST Controller | Múltiples endpoints en `/api/events` |
+| `EventRsvpController` | REST Controller | Múltiples endpoints en `/api/rsvp` |
+| Casos de Uso | Application Service | Implementan los puertos de entrada |
+| Adaptadores Mongo | Infrastructure | Implementan los puertos de repositorios |
+
+---
+
+## 8. Funcionalidades Principales
 
 <div align="center">
 
-<table>
-  <thead>
-    <tr>
-      <th>💡 Funcionalidad</th>
-      <th>Descripción</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Gestion de eventos</strong></td>
-      <td>Crea eventos almacenando información como la fecha, capacidad, descripción y tipo de evento</td>
-    </tr>
-    <tr>
-      <td><strong>Cancelar eventos</strong></td>
-      <td>El administrador puede cancelar un evento cambiando el estado del mismo de ACTIVE a CANCELLED, o al tipo FINISHED automáticamente cuando el evento se considera terminado</td>
-    </tr>
-    <tr>
-      <td><strong>Asistencia a un evento</strong></td>
-      <td>Si un evento tiene capacidad limitada, un estudiante puede apartar el cupo a este evento, de la misma manera cancelar el cupo previamente solicitado.</td>
-    </tr>
-  </tbody>
-</table>
+| ID | Funcionalidad | Descripción |
+|---|---|---|
+| F01 | **Gestión de eventos** | Crea y visualiza eventos con fechas, capacidad, y tipo. |
+| F02 | **Cancelar eventos** | Un administrador puede cancelar un evento pasándolo al estado `CANCELLED`. |
+| F03 | **Asistencia a un evento (RSVP)** | Estudiantes apartan cupo (si es limitado) y confirman asistencia. |
+| F04 | **Manejo de Errores Globales** | Respuestas HTTP consistentes para excepciones de negocio. |
 
 </div>
 
-
-## 4. 📋 Manejo de Estrategia de versionamiento y branches
-
-### Estrategia de Ramas (Git Flow)
-
-#### `main`
-- Rama **estable** con la versión final lista para demo/producción.
-- Solo recibe merges desde `develop`.
-- Rama **protegida**: PR obligatorio, aprobaciones requeridas, CI en verde.
-#### `develop`
-- Base de integración continua para nuevas funcionalidades.
-- Recibe merges desde `feature/*`.
-#### `feature/*`
-- Desarrollo de una funcionalidad o refactor específico.
-- **Base:** `develop`. **Cierre:** PR hacia `develop`.
-### 4.1 Convenciones para commits
-
-```
-[tipo]: [descripción específica]
- 
-feat: agregar endpoint de cancelación de eventos
-fix: corregir validación de cupo en CreateRsvpUseCase
-docs: actualizar README con instrucciones de ejecución
-test: agregar pruebas de EventControllerTest con MockMvc
-```
 ---
 
-## 5. ⚙️ Tecnologías Utilizadas
+## 9. Endpoints
 
----
+### Resumen
 
-| **Tecnología / Herramienta** | **Uso principal en el proyecto** |
-|------------------------------|----------------------------------|
-| **Java OpenJDK** | Lenguaje de programación base de los microservicios backend, orientado a objetos y multiplataforma. |
-| **Spring Boot** | Framework principal para construir microservicios independientes, exponiendo APIs REST y gestionando configuración e inyección de dependencias. |
-| **Spring Web** | Exposición de endpoints REST en cada microservicio (controladores HTTP) dentro de la arquitectura hexagonal. |
-| **Spring Security** | Configuración de autenticación y autorización mediante roles, asegurando el acceso a los endpoints de los microservicios. |
-| **Spring Data MongoDB** | Integración de cada microservicio con su base de datos NoSQL en MongoDB usando el patrón Repository y puertos/adaptadores. |
-| **MongoDB Atlas** | Base de datos NoSQL en la nube, con colecciones independientes por dominio (pagos, billetera, recibos, promociones, usuarios, etc.). |
-| **Apache Maven** | Gestión de dependencias, empaquetado de cada microservicio y automatización de builds en los pipelines CI/CD. |
-| **Lombok** | Reducción de código repetitivo en los microservicios con anotaciones como `@Getter`, `@Setter`, `@Builder` y `@AllArgsConstructor`. |
-| **JUnit 5** | Framework de pruebas unitarias para validar la lógica de dominio y casos de uso en cada microservicio. |
-| **Mockito** | Simulación de dependencias (puertos, repositorios, clientes externos) en pruebas unitarias sin acceder a infraestructura real. |
-| **JaCoCo** | Generación de reportes de cobertura de código de los microservicios para evaluar la efectividad de las pruebas. |
-| **SonarQube** | Análisis estático del código y control de calidad, identificando vulnerabilidades, code smells y problemas de mantenibilidad. |
-| **Swagger (OpenAPI 3)** | Generación automática de documentación y prueba interactiva de los endpoints REST de cada microservicio. |
-| **Postman** | Entorno de pruebas de la API para validar manualmente las peticiones y respuestas JSON de los distintos microservicios (`POST`, `GET`, `PATCH`, `DELETE`). |
-| **Docker** | Contenerización de cada microservicio para garantizar despliegues aislados y consistentes entre entornos. |
-| **Azure App Service** | Entorno de ejecución en la nube donde se despliegan los contenedores Docker de los microservicios. |
-| **Azure Container Registry (ACR)** | Almacenamiento y versionado de las imágenes Docker generadas en los pipelines de CI/CD. |
-| **GitHub Actions** | Pipelines de integración y despliegue continuo (CI/CD) para compilar, probar, analizar y desplegar cada microservicio. |
-| **AWS API Gateway** | Punto de entrada único al backend que enruta las solicitudes del cliente al microservicio correspondiente (Pagos, Wallet, Recibos, QR, etc.). |
-| **AWS Lambda (Node.js)** | Funciones ligeras que actúan como lógica intermedia cuando se requiere preprocesar o adaptar solicitudes antes de enviarlas a los microservicios. |
-| **SSL / HTTPS** | Cifrado de la comunicación entre cliente, API Gateway y microservicios para garantizar la seguridad de la información. |
-
-## 6. 🧩 Funcionalidades
-
----
-
-### 1️⃣ Crear Evento
-
-Permite al organizador crear un nuevo evento institucional.
-
-**Endpoint:** `POST /api/events`
- 
----
-
-#### 📦 Estructura de la solicitud
-
-| 🏷️ Campo | 🗃️ Tipo | ⚠️ Restricciones | 📝 Descripción |
-|---|---|:---:|---|
-| name | String | Obligatorio | Nombre del evento |
-| description | String | Opcional | Descripción del evento |
-| dateTime | LocalDateTime | Obligatorio | Fecha y hora del evento (yyyy-MM-ddTHH:mm:ss) |
-| location | String | Obligatorio | Lugar de realización |
-| category | Enum | Obligatorio | ACADEMIC, CULTURAL, SPORTS, WELLNESS |
-| type | Enum | Obligatorio | OPEN o WITH_CAPACITY |
-| maxCapacity | Integer | Opcional | Cupo máximo (solo para WITH_CAPACITY) |
-| organizerId | String | Obligatorio | ID del organizador del evento |
- 
----
-
-#### 📦 Estructura de la respuesta
-
-| 🏷️ Campo | 🗃️ Tipo | 📝 Descripción |
+| Método | Endpoint | Funcionalidad |
 |---|---|---|
-| id | String | Identificador único del evento (UUID) |
-| name | String | Nombre del evento |
-| description | String | Descripción del evento |
-| dateTime | LocalDateTime | Fecha y hora del evento |
-| location | String | Lugar de realización |
-| category | Enum | Categoría del evento |
-| type | Enum | Tipo: OPEN o WITH_CAPACITY |
-| maxCapacity | Integer | Cupo máximo |
-| availableSpots | Integer | Cupos disponibles actuales |
-| organizerId | String | ID del organizador |
-| status | Enum | Estado actual: ACTIVE, CANCELLED, FULL |
-| createdAt | LocalDateTime | Fecha de creación |
- 
----
+| `GET` | `/api/events` | Consultar todos los eventos |
+| `GET` | `/api/events/{id}` | Consultar evento por ID |
+| `POST` | `/api/events` | Crear un nuevo evento |
+| `PATCH` | `/api/events/{id}/cancel` | Cancelar un evento |
+| `POST` | `/api/rsvp` | Crear RSVP (Inscripción a evento) |
+| `PATCH` | `/api/rsvp/{id}/cancel` | Cancelar inscripción |
 
-#### ✅ Happy Path
-
-**Request:**
-POST /api/events
-```json
- 
-{
-  "name": "Hackathon ECI 2026",
-  "description": "Maratón de programación abierta a todos los estudiantes",
-  "dateTime": "2026-06-15T09:00:00",
-  "location": "Auditorio principal",
-  "category": "ACADEMIC",
-  "type": "WITH_CAPACITY",
-  "maxCapacity": 50,
-  "organizerId": "org-001"
-}
-```
-
-**Response (201 CREATED):**
-```json
-{
-  "id": "abc123-def456",
-  "name": "Hackathon ECI 2026",
-  "description": "Maratón de programación abierta a todos los estudiantes",
-  "dateTime": "2026-06-15T09:00:00",
-  "location": "Auditorio principal",
-  "category": "ACADEMIC",
-  "type": "WITH_CAPACITY",
-  "maxCapacity": 50,
-  "availableSpots": 50,
-  "organizerId": "org-001",
-  "status": "ACTIVE",
-  "createdAt": "2026-05-10T08:00:00"
-}
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![409](https://img.shields.io/badge/409-Conflict-orange?style=flat) | Evento ya existe | `"El evento ya existe"` |
-| ![400](https://img.shields.io/badge/400-Bad_Request-red?style=flat) | Datos inválidos | `"Validation failed"` |
- 
----
-
-### 2️⃣ Consultar Todos los Eventos
-
-Retorna la lista completa de eventos registrados en el sistema.
-
-**Endpoint:** `GET /api/events`
- 
----
-
-#### ✅ Happy Path
-
-**Request:**
-```
-GET /api/events
-```
-
-**Response (200 OK):**
-```json
-[
-  {
-    "id": "abc123-def456",
-    "name": "Hackathon ECI 2026",
-    "category": "ACADEMIC",
-    "type": "WITH_CAPACITY",
-    "status": "ACTIVE",
-    "availableSpots": 48,
-    "dateTime": "2026-06-15T09:00:00"
-  }
-]
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![200](https://img.shields.io/badge/200-OK-success?style=flat) | Sin eventos | Lista vacía `[]` |
- 
----
-
-### 3️⃣ Consultar Evento por ID
-
-Permite recuperar la información completa de un evento específico.
-
-**Endpoint:** `GET /api/events/{id}`
- 
----
-
-#### ✅ Happy Path
-
-**Request:**
-```
-GET /api/events/abc123-def456
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": "abc123-def456",
-  "name": "Hackathon ECI 2026",
-  "status": "ACTIVE",
-  "availableSpots": 48,
-  "maxCapacity": 50
-}
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | Evento no existe | `"Evento no encontrado por el ID: abc123"` |
- 
----
-
-### 4️⃣ Cancelar Evento
-
-Permite al organizador cancelar un evento activo, cambiando su estado a CANCELLED.
-
-**Endpoint:** `PATCH /api/events/{id}/cancel`
- 
----
-
-#### ✅ Happy Path
-
-**Request:**
-```
-PATCH /api/events/abc123-def456/cancel
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": "abc123-def456",
-  "name": "Hackathon ECI 2026",
-  "status": "CANCELLED"
-}
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | Evento no existe | `"Evento no encontrado por el ID: abc123"` |
-| ![409](https://img.shields.io/badge/409-Conflict-orange?style=flat) | Ya está cancelado | `"El evento ya fue cancelado"` |
- 
----
-
-### 5️⃣ Crear RSVP (Inscripción)
-
-Permite a un estudiante confirmar su asistencia a un evento activo con cupo disponible.
-
-**Endpoint:** `POST /api/rsvp`
- 
----
-
-#### 📦 Estructura de la solicitud
-
-| 🏷️ Campo | 🗃️ Tipo | ⚠️ Restricciones | 📝 Descripción |
-|---|---|:---:|---|
-| eventId | String | Obligatorio | ID del evento al que se inscribe |
-| studentId | String | Obligatorio | ID del estudiante |
-| confirmedAt | LocalDateTime | Obligatorio | Fecha y hora de confirmación |
-| status | Enum | Obligatorio | CONFIRMED |
- 
----
-
-#### 📦 Estructura de la respuesta
-
-| 🏷️ Campo | 🗃️ Tipo | 📝 Descripción |
-|---|---|---|
-| id | String | Identificador único del RSVP |
-| eventId | String | ID del evento |
-| studentId | String | ID del estudiante |
-| confirmedAt | LocalDateTime | Fecha y hora de confirmación |
-| status | Enum | Estado: CONFIRMED o CANCELLED |
- 
----
-
-#### ✅ Happy Path
-
-**Request:**
-POST /api/rsvp
-```json
- 
-{
-  "eventId": "abc123-def456",
-  "studentId": "student-789",
-  "confirmedAt": "2026-05-10T10:00:00",
-  "status": "CONFIRMED"
-}
-```
-
-**Response (201 CREATED):**
-```json
-{
-  "id": "rsvp-001",
-  "eventId": "abc123-def456",
-  "studentId": "student-789",
-  "confirmedAt": "2026-05-10T10:00:00",
-  "status": "CONFIRMED"
-}
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![400](https://img.shields.io/badge/400-Bad_Request-red?style=flat) | Sin cupo o cancelado | `"El evento con ID X no está disponible"` |
-| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | Evento no existe | `"Evento no encontrado por el ID: X"` |
- 
----
-
-### 6️⃣ Cancelar RSVP
-
-Permite a un estudiante cancelar su inscripción a un evento, liberando un cupo.
-
-**Endpoint:** `PATCH /api/rsvp/{id}/cancel`
- 
----
-
-#### ✅ Happy Path
-
-**Request:**
-```
-PATCH /api/rsvp/rsvp-001/cancel
-```
-
-**Response (200 OK):**
-```json
-{
-  "id": "rsvp-001",
-  "eventId": "abc123-def456",
-  "studentId": "student-789",
-  "status": "CANCELLED"
-}
-```
- 
----
-
-#### 📊 Errores manejados
-
-| 🔢 HTTP | ⚠️ Escenario | 💬 Mensaje |
-|:---:|:---|:---|
-| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | RSVP no existe | `"RSVP no encontrado"` |
- 
----
-
-## 7. 📊 Diagramas
-
-### Diagrama de componentes - Vista General
-
-
-
-### Diagrama de componentes - Vista Especifica
-
-
-
-### Diagrama de base de datos
-
-
-
-### Diagrama de Clases del Dominio 
-
-
-
-### Diagrama de Despliegue
+*(Los detalles de petición y respuesta, como códigos HTTP (200, 201, 400, 404, 409) son manejados mediante el GlobalExceptionHandler).*
 
 ---
 
-## 8. ⚠️ Manejo de Errores
+## 10. Colas de Mensajería
 
-El microservicio implementa un `GlobalExceptionHandler` con `@RestControllerAdvice` que centraliza
-todas las excepciones y retorna respuestas estandarizadas.
+Actualmente, este servicio funciona de forma síncrona mediante REST para el ciclo principal de eventos. Integraciones futuras pueden emplear mensajería para notificaciones de asistencia.
 
-### Global Exception Handler
-
-Se encarga de capturar y manejar todas las excepciones del sistema de forma centralizada.
-
-- ✅ **Centraliza** la captura de excepciones desde todos los controladores
-- ✅ **Retorna mensajes consistentes** con el código HTTP apropiado
-- ✅ **Asigna códigos HTTP** según la naturaleza del error (400, 404, 409, 500)
-- ✅ **Define mensajes descriptivos** que ayudan al desarrollador y al usuario
-### Excepciones manejadas
-
-| ⚠️ Excepción | 🔢 HTTP | 💬 Escenario                                   |
-|:---|:---:|:-----------------------------------------------|
-| `EventNotFoundException` | 404 | El evento solicitado no existe                 |
-| `EventAlreadyExistsException` | 409 | Se intenta crear un evento que ya existe       |
-| `EventNotAvailableException` | 400 | El evento está cancelado o sin cupo disponible |
-| `EventAlreadyCancelledException` | 409 | Se intenta cancelar un evento ya cancelado     |
-| `RsvpNotFoundException` | 404 | El RSVP solicitado no existe                   |
-| `Exception` | 500 | Error inesperado del servidor                  |
-
-### Beneficios
-
-| 🎯 **Beneficio** | 📋 **Descripción** |
-|:---|:---|
-| **🎯 Uniformidad** | Todas las respuestas de error tienen el mismo formato |
-| **🔧 Mantenibilidad** | Agregar nuevas excepciones no requiere modificar cada controlador |
-| **🔒 Seguridad** | Oculta los detalles internos del servidor |
-| **📍 Trazabilidad** | Cada error incluye el código HTTP y descripción del fallo |
-| **🤝 Integración fluida** | Facilita la comunicación con frontend y herramientas como Postman/Swagger |
- 
 ---
 
-## 9. 🧪 Evidencia de las pruebas y cómo ejecutarlas
+## 11. Evidencia de Pruebas
 
-### Tipos de pruebas implementadas
+### Clases de prueba implementadas
 
-| 🧪 Tipo                            | 📋 Descripción                                                                                                             | 🛠️ Herramientas  |
-|:-----------------------------------|:---------------------------------------------------------------------------------------------------------------------------|:------------------|
-| **Pruebas Unitarias**              | Validan el funcionamiento aislado de casos de uso, controladores y lógica de dominio con mocks                             | JUnit 5 + Mockito |
-| **DataLoader**                     | Prueban carga inicial y que no duplica en reinicios                                                                        | JUnit 5 + Mockito |
-| **Contexto Spring**           | Verifica que la app levanta correctamente con H2                                                                           | @SpringBootTest   |
-| **Cobertura de Codigo**          | Para medir el porcentaje de codigo que cubren las pruebas                                                                  | JaCoCo            |
-| **Controller (MockMvc)**           | Pruebas de endpoints REST                                                                                                  | Spring MockMvc    |
-| **Contexto Spring**                | Verifica que la app levanta correctamente                                                                                  | @SpringBootTest   |
-| **Cobertura de código**            | Mide el porcentaje cubierto por las pruebas                                                                                | JaCoCo            |
-
-### Suites de prueba
+El proyecto cuenta con un conjunto amplio de 102 casos de prueba unitarios para la lógica de los casos de uso, repositorios, y mapeos:
 
 ```
 src/test/java/edu/eci/patricia/DOWS_patricia/
-│
-├── application/
-│   ├── mapper/
-│   │   ├── EventMapperTest.java                     (7 casos)
-│   │   └── EventRsvpMapperTest.java                 (7 casos)
-│   └── usecase/
-│       ├── CreateEventUseCaseTest.java              (3 casos)
-│       ├── CancelEventUseCaseTest.java              (4 casos)
-│       ├── GetEventByIdUseCaseTest.java             (3 casos)
-│       ├── GetEventsUseCaseTest.java                (3 casos)
-│       ├── CreateRsvpUseCaseTest.java               (6 casos)
-│       └── CancelRsvpUseCaseTest.java               (6 casos)
-│
-├── domain/
-│   ├── model/
-│   │   ├── EventTest.java                           (9 casos)
-│   │   └── EventRsvpTest.java                       (6 casos)
-│   └── valueobjects/
-│       ├── EventIdTest.java                         (6 casos)
-│       ├── RsvpIdTest.java                          (6 casos)
-│       ├── OrganizerIdTest.java                     (6 casos)
-│       └── StudentIdTest.java                       (6 casos)
-│
+├── application/usecase/ (Ej: CreateEventUseCaseTest, CreateRsvpUseCaseTest)
+├── domain/model/ (Ej: EventTest, EventRsvpTest)
 ├── entrypoints/rest/controller/
-│   ├── EventControllerTest.java                     (5 casos)
-│   └── EventRsvpControllerTest.java                 (2 casos)
-│
-├── infrastructure/adapters/
-│   ├── adapter/
-│   │   ├── EventRepositoryAdapterTest.java          (7 casos)
-│   │   └── EventRsvpRepositoryAdapterTest.java      (3 casos)
-│   └── persistence/
-│       ├── entity/
-│       │   ├── EventEntityTest.java                 (4 casos)
-│       │   └── EventRsvpEntityTest.java             (3 casos)
-│       └── mapper/
-│           ├── EventPersistenceMapperTest.java      (3 casos)
-│           └── EventRsvpPersistenceMapperTest.java  (3 casos)
-│
-└── EeveevoidingResponsibilitiesCampusEventsApplicationTests.java (1 caso)
+└── infrastructure/adapters/
 ```
-
-**Total: 102 casos de prueba**
 
 ### Cómo ejecutar las pruebas
 
 ```bash
-# Ejecutar todas las pruebas
-mvn test
- 
-# Ejecutar una suite específica
-mvn test -Dtest=CreateEventUseCaseTest
- 
-# Generar reporte de cobertura JaCoCo
-mvn clean verify
- 
-# Ver reporte HTML
-target/site/jacoco/index.html
+# Ejecutar pruebas unitarias
+./mvnw test
+
+# Todas las pruebas + reporte JaCoCo
+./mvnw verify
 ```
 
-### Evidencia de ejecución
-
-1. **Consola mostrando pruebas ejecutadas exitosamente**
-   ///////////////FOTO//////////////////
-
-2. **Reporte JaCoCo con cobertura de código**
-   ////////////////FOTO////////////////////
-
+> 📷 **[Insert Image: Ejecucion_Pruebas_Exitosa.png]**
 
 ---
 
-## 10. 🗂️ Código de la implementación organizado en las respectivas carpetas
+## 12. Evidencia de Cobertura
 
+Se utiliza JaCoCo para la generación de reportes con un mínimo de cobertura requerido en el pipeline.
 
-```
-eeveevoiding-responsibilities-campus-events/
-│
-├── src/
-│   ├── main/
-│   │   ├── java/edu/eci/patricia/DOWS_patricia/
-│   │   │   │
-│   │   │   ├── application/                              # 🔵 CAPA DE APLICACIÓN
-│   │   │   │   ├── dto/
-│   │   │   │   │   ├── request/
-│   │   │   │   │   │   ├── EventRequest.java
-│   │   │   │   │   │   └── EventRequestRsvp.java
-│   │   │   │   │   └── response/
-│   │   │   │   │       ├── EventResponse.java
-│   │   │   │   │       └── EventResponseRsvp.java
-│   │   │   │   ├── mapper/
-│   │   │   │   │   ├── EventMapper.java
-│   │   │   │   │   └── EventRsvpMapper.java
-│   │   │   │   └── usecase/
-│   │   │   │       ├── CreateEventUseCase.java
-│   │   │   │       ├── CancelEventUseCase.java
-│   │   │   │       ├── GetEventByIdUseCase.java
-│   │   │   │       ├── GetEventsUseCase.java
-│   │   │   │       ├── CreateRsvpUseCase.java
-│   │   │   │       └── CancelRsvpUseCase.java
-│   │   │   │
-│   │   │   ├── domain/                                   # 🟢 CAPA DE DOMINIO
-│   │   │   │   ├── exceptions/
-│   │   │   │   │   ├── EventNotFoundException.java
-│   │   │   │   │   ├── EventAlreadyExistsException.java
-│   │   │   │   │   ├── EventAlreadyCancelledException.java
-│   │   │   │   │   ├── EventNotAvailableException.java
-│   │   │   │   │   ├── InvalidEventException.java
-│   │   │   │   │   └── RsvpNotFoundException.java
-│   │   │   │   ├── model/
-│   │   │   │   │   ├── Event.java
-│   │   │   │   │   ├── EventRsvp.java
-│   │   │   │   │   └── enums/
-│   │   │   │   │       ├── EventCategory.java
-│   │   │   │   │       ├── EventStatus.java
-│   │   │   │   │       ├── EventType.java
-│   │   │   │   │       └── RsvpStatus.java
-│   │   │   │   ├── ports/
-│   │   │   │   │   └── in/
-│   │   │   │   │       ├── CreateEventPort.java
-│   │   │   │   │       ├── CancelEventPort.java
-│   │   │   │   │       ├── GetEventByIdPort.java
-│   │   │   │   │       ├── GetEventsPort.java
-│   │   │   │   │       ├── CreateRsvpPort.java
-│   │   │   │   │       └── CancelRsvpPort.java
-│   │   │   │   └── valueobjects/
-│   │   │   │       ├── EventId.java
-│   │   │   │       └── RsvpId.java
-│   │   │   │
-│   │   │   ├── entrypoints/                              # 🟠 ENTRADA (DRIVING ADAPTERS)
-│   │   │   │   ├── advice/
-│   │   │   │   │   └── GlobalExceptionHandler.java
-│   │   │   │   └── rest/controller/
-│   │   │   │       ├── EventController.java
-│   │   │   │       └── EventRsvpController.java
-│   │   │   │
-│   │   │   └── infrastructure/                           # 🟠 INFRAESTRUCTURA
-│   │   │       ├── adapters/
-│   │   │       │   ├── adapter/
-│   │   │       │   │   ├── EventRepositoryAdapter.java
-│   │   │       │   │   └── EventRsvpRepositoryAdapter.java
-│   │   │       │   └── persistence/
-│   │   │       │       ├── entity/
-│   │   │       │       │   ├── EventEntity.java
-│   │   │       │       │   └── EventRsvpEntity.java
-│   │   │       │       ├── mapper/
-│   │   │       │       │   ├── EventPersistenceMapper.java
-│   │   │       │       │   └── EventRsvpPersistenceMapper.java
-│   │   │       │       └── repository/
-│   │   │       │           ├── EventMongoRepository.java
-│   │   │       │           └── EventRsvpMongoRepository.java
-│   │   │       └── config/
-│   │   │           └── SecurityConfig.java
-│   │   │
-│   │   └── resources/
-│   │       └── application.properties
-│   │
-│   └── test/
-│       └── java/edu/eci/patricia/DOWS_patricia/
-│           ├── application/mapper/
-│           ├── application/usecase/
-│           ├── domain/model/
-│           ├── domain/valueobjects/
-│           ├── entrypoints/rest/controller/
-│           └── infrastructure/adapters/
-│
-├── pom.xml
-└── README.md
-```
+> 📷 **[Insert Image: Reporte_Cobertura_JaCoCo.png]**
 
 ---
 
-## 11. 🚀 Ejecución del Proyecto
-### 📋 Prerrequisitos
+## 13. Cómo Ejecutar
 
-- **Java 21**
-- **Maven 3.9+**
-- **Docker & Docker Compose** (para MongoDB local)
-### 🛠️ Opción 1: Ejecución Local
+### Prerrequisitos
+
+- Java 21
+- Maven 3.9+
+- Docker & Docker Compose
+
+### Opción 1: Ejecución Local
 
 ```bash
 # 1. Levantar MongoDB con Docker
-docker run --name campus-events-db \
-  -e MONGO_INITDB_DATABASE=campus-events \
-  -p 27017:27017 -d mongo:7
- 
-# 2. Ejecutar la aplicación
-mvn spring-boot:run
+docker run --name campus-events-db -e MONGO_INITDB_DATABASE=campus-events -p 27017:27017 -d mongo:7
+
+# 2. Ejecutar sin Docker (Maven)
+./mvnw spring-boot:run
 ```
 
-📍 **URL Local:** `http://localhost:8080`
-📚 **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+**URL:** `http://localhost:8080`
+**Swagger UI:** `http://localhost:8080/swagger-ui.html`
 
-### 🐳 Opción 2: Docker Compose
+### Opción 2: Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-### ⚙️ Variables de Entorno
+### Variables de Entorno
 
-| Variable | Valor por defecto | Descripción |
-|:---|:---|:---|
-| `SPRING_DATA_MONGODB_URI` | `mongodb://localhost:27017/campus-events` | URI de conexión MongoDB |
-| `SERVER_PORT` | `8080` | Puerto del servidor |
-| `JWT_SECRET` | *(requerida al activar JWT)* | Clave HMAC-SHA256 compartida con auth-service |
- 
----
-
-### 🏆 Equipo **eeveevoiding-responsibilities**
-
-![Course](https://img.shields.io/badge/Course-DOSW-orange?style=for-the-badge)
-![Year](https://img.shields.io/badge/Year-2026--1-blue?style=for-the-badge)
-
-> 💡 **M09 — Eventos Universitarios** es el microservicio encargado de gestionar el ciclo de vida completo de los eventos institucionales de la ECI, conectando organizadores y estudiantes en una experiencia fluida y confiable.
-
-**🎓 Escuela Colombiana de Ingeniería Julio Garavito**
+| Variable | Descripción |
+|---|---|
+| `SPRING_DATA_MONGODB_URI` | `mongodb://localhost:27017/campus-events` |
+| `SERVER_PORT` | `8080` |
+| `JWT_SECRET` | Clave HMAC-SHA256 para validación de tokens |
 
 ---
 
-## 13. 🤝 Contribuciones y Metodología
+## 14. Evidencia CI/CD
+
+El repositorio implementa estrategias de Integración Continua a través de GitHub Actions para el empaquetado, pruebas, generación de imágenes en Docker y despliegue hacia servicios de nube.
+
+> 📷 **[Insert Image: Pipeline_CI.png]**
+
+> 📷 **[Insert Image: Pipeline_CD.png]**
+
+> 📷 **[Insert Image: Diagrama_Despliegue.png]**
+
+---
+
+## 15. Link Swagger
+
+| Ambiente | URL |
+|---|---|
+| Local (Maven) | http://localhost:8080/swagger-ui.html |
+| OpenAPI JSON | http://localhost:8080/v3/api-docs |
+
+---
+
+## 16. Estructura del Código
+
+```
+src/main/java/edu/eci/patricia/DOWS_patricia/
+├── application/               # CAPA DE APLICACIÓN
+│   ├── dto/                   # Requests / Responses
+│   ├── mapper/                # MapStruct Interfaces
+│   └── usecase/               # Implementación lógica de negocio
+├── domain/                    # CAPA DE DOMINIO
+│   ├── exceptions/            # Excepciones de negocio personalizadas
+│   ├── model/                 # Entidades del Dominio (Event, EventRsvp)
+│   ├── ports/                 # Puertos In/Out
+│   └── valueobjects/          # Value Objects
+├── entrypoints/               # DRIVING ADAPTERS
+│   ├── advice/                # GlobalExceptionHandler
+│   └── rest/controller/       # Endpoints REST
+└── infrastructure/            # DRIVEN ADAPTERS
+    ├── adapters/              # Conexión MongoDB / Repositorios
+    └── config/                # Spring Security
+```
+
+---
+
+## 17. Código Documentado
+
+La lógica de negocio implementada en las diferentes capas se encuentra probada y modularizada para fácil comprensión, y los endpoints están debidamente documentados para su exportación a través de OpenAPI (Swagger).
+
+---
+
+## 18. Conexiones Externas
+
+| Módulo | Tipo | Dirección | Detalle |
+|---|---|---|---|
+| **M01 — Autenticación** | JWT | Cliente → M09 | Verificación del JWT en cada petición restringida por roles (Spring Security). |
+
+---
+
+## 19. Pipeline de Desarrollo
+
+Para el desarrollo se maneja una estrategia Git Flow donde todo código fluye a través de Pull Requests hacia la rama `develop`, asegurando su verificación a través del pipeline.
+
+---
+
+## 20. Pipeline de Producción
+
+Los merges hacia la rama `main` despliegan automáticamente nuevas versiones hacia los entornos administrados mediante Docker y contenedores persistentes en la nube (ej. Azure).
+
+---
+
+## 21. Dockerizado
+
+El proyecto incluye un `Dockerfile` y un `docker-compose.yml` que empaqueta la aplicación Java junto con sus dependencias base, orquestando de manera sencilla la inicialización tanto del servicio REST como del gestor documental MongoDB.
+
+---
+
+## 22. Versionamiento
+
+Mantenemos un versionamiento semántico utilizando ramas de funcionalidad (`feature/*`) para nuevas integraciones. Todos los aportes pasan por CI/CD.
