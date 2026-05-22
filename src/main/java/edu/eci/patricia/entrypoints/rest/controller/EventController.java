@@ -6,6 +6,8 @@ import edu.eci.patricia.application.dto.request.EventUpdateRequest;
 import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.dto.response.EventResponse;
 import edu.eci.patricia.domain.ports.in.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -58,6 +60,10 @@ public class EventController {
     }
 
     @PatchMapping("/{eventId}")
+    @Operation(
+            summary = "Cancel an event"
+    )
+    @ApiResponse(responseCode = "204", description = "Event cancelled successfully")
     public ResponseEntity<Void> cancel(
             @PathVariable UUID eventId,
             @RequestHeader("X-User-Id") UUID organizerId) {

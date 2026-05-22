@@ -4,6 +4,7 @@ import edu.eci.patricia.application.dto.response.EventFeedResponse;
 import edu.eci.patricia.application.mapper.EventMapper;
 import edu.eci.patricia.application.mapper.EventRsvpMapper;
 import edu.eci.patricia.domain.model.EventRsvp;
+import edu.eci.patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.domain.ports.in.GetRsvpPort;
 import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.domain.ports.out.EventRsvpRepositoryPort;
@@ -29,10 +30,12 @@ public class GetRsvpUseCase implements GetRsvpPort {
 
         List<EventRsvp> rsvps = rsvpRepository.findByStudentId(studentId);
 
+
         return rsvps.stream()
                 .map(rsvp -> eventRepository.findById(rsvp.getEventId()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(event -> event.getStatus().equals(EventStatus.ACTIVE)) // ← solo activos
                 .map(eventMapper::toFeedDTO)
                 .toList();
     }
