@@ -31,6 +31,13 @@ public class CreateEventUseCase implements CreateEventPort {
             throw new EventDomainException("Max capacity is required for WITH_CAPACITY events");
         }
 
+        if (request.getType() == EventType.WITH_CAPACITY && request.getMaxCapacity() < 2) {
+            throw new EventDomainException("Minimum of 2 spots for WITH_CAPACITY events");
+        }
+
+        if (eventRepository.existsByName(request.getName())) {
+            throw new EventDomainException("An event with the name '" + request.getName() + "' already exists");
+        }
 
         Event event = eventMapper.toDomain(request);
         event.setId(EventId.generate());
@@ -38,7 +45,6 @@ public class CreateEventUseCase implements CreateEventPort {
         event.setStatus(EventStatus.ACTIVE);
         event.setAvailableCapacity(request.getType() == EventType.WITH_CAPACITY
                 ? request.getMaxCapacity() : null);
-        event.setCreatedAt(LocalDateTime.now());
 
 
         Event saved = eventRepository.save(event);

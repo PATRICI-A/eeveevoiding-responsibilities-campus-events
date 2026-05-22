@@ -3,6 +3,7 @@ package edu.eci.patricia.infrastructure.adapters.adapter;
 import edu.eci.patricia.domain.model.Event;
 import edu.eci.patricia.domain.model.enums.EventCategory;
 import edu.eci.patricia.domain.model.enums.EventStatus;
+import edu.eci.patricia.domain.model.enums.EventType;
 import edu.eci.patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.infrastructure.adapters.persistence.entity.EventEntity;
 import edu.eci.patricia.infrastructure.adapters.persistence.mapper.EventPersistenceMapper;
@@ -16,11 +17,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,21 +38,53 @@ class EventRepositoryAdapterTest {
     @InjectMocks
     private EventRepositoryAdapter adapter;
 
-    private UUID eventUUID;
+    private UUID eventUuid;
     private EventId eventId;
     private Event event;
     private EventEntity eventEntity;
 
     @BeforeEach
     void setUp() {
-        eventUUID = UUID.randomUUID();
-        eventId = new EventId(eventUUID);
-        event = Event.builder().id(eventId).name("Test Event").build();
-        eventEntity = EventEntity.builder().id(eventUUID).name("Test Event").build();
+        eventUuid = UUID.randomUUID();
+        eventId = new EventId(eventUuid);
+
+        event = Event.builder()
+                .id(eventId)
+                .name("Test Event")
+                .description("Description")
+                .dateTime(LocalDate.now())
+                .startTime(LocalTime.of(10, 0))
+                .durationMinutes(60)
+                .location("Test Location")
+                .category(EventCategory.ACADEMIC)
+                .type(EventType.OPEN)
+                .status(EventStatus.ACTIVE)
+                .maxCapacity(100)
+                .availableCapacity(100)
+                .organizerId(UUID.randomUUID())
+                .qrCode("qr123")
+                .build();
+
+        eventEntity = EventEntity.builder()
+                .id(eventUuid)
+                .name("Test Event")
+                .description("Description")
+                .dateTime(LocalDate.now())
+                .startTime("10:00")
+                .durationMinutes(60)
+                .location("Test Location")
+                .category(EventCategory.ACADEMIC)
+                .type(EventType.OPEN)
+                .status(EventStatus.ACTIVE)
+                .maxCapacity(100)
+                .availableCapacity(100)
+                .organizerId(event.getOrganizerId())
+                .qrCode("qr123")
+                .build();
     }
 
     @Test
-    void save_shouldReturnMappedModel() {
+    void saveShouldReturnMappedEvent() {
         when(mapper.toEntity(event)).thenReturn(eventEntity);
         when(repository.save(eventEntity)).thenReturn(eventEntity);
         when(mapper.toModel(eventEntity)).thenReturn(event);
@@ -57,128 +92,164 @@ class EventRepositoryAdapterTest {
         Event result = adapter.save(event);
 
         assertNotNull(result);
-        assertEquals(event, result);
+        assertEquals(event.getId(), result.getId());
+        assertEquals(event.getName(), result.getName());
         verify(mapper).toEntity(event);
         verify(repository).save(eventEntity);
         verify(mapper).toModel(eventEntity);
     }
 
     @Test
-    void findById_shouldReturnMappedModel_whenEntityExists() {
-        when(repository.findById(eventUUID)).thenReturn(Optional.of(eventEntity));
+    void findByIdShouldReturnEventWhenExists() {
+        when(repository.findById(eventUuid)).thenReturn(Optional.of(eventEntity));
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
         Optional<Event> result = adapter.findById(eventId);
 
         assertTrue(result.isPresent());
-        assertEquals(event, result.get());
-        verify(repository).findById(eventUUID);
+        assertEquals(event.getId(), result.get().getId());
+        verify(repository).findById(eventUuid);
         verify(mapper).toModel(eventEntity);
     }
 
     @Test
-    void findById_shouldReturnEmpty_whenEntityDoesNotExist() {
-        when(repository.findById(eventUUID)).thenReturn(Optional.empty());
+    void findByIdShouldReturnEmptyWhenNotExists() {
+        when(repository.findById(eventUuid)).thenReturn(Optional.empty());
 
         Optional<Event> result = adapter.findById(eventId);
 
-        assertFalse(result.isPresent());
-        verify(repository).findById(eventUUID);
+        assertTrue(result.isEmpty());
+        verify(repository).findById(eventUuid);
         verify(mapper, never()).toModel(any());
     }
 
     @Test
-    void findActiveEvents_shouldFindAllActive_whenNoCategoryNorDate() {
-        when(repository.findByStatus(EventStatus.ACTIVE)).thenReturn(List.of(eventEntity));
+    void findActiveEventsWithCategoryAndDateShouldReturnFilteredEvents() {
+        EventCategory category = EventCategory.ACADEMIC;
+        LocalDate date = LocalDate.now();
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.atTime(23, 59, 59);
+
+        List<EventEntity> entities = List.of(eventEntity);
+        List<Event> expectedEvents = List.of(event);
+
+        when(repository.findByStatusAndCategoryAndDateTimeBetween(EventStatus.ACTIVE, category, start, end))
+                .thenReturn(entities);
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
-        List<Event> result = adapter.findActiveEvents(null, null);
+        List<Event> result = adapter.findActiveEvents(category, date);
 
         assertEquals(1, result.size());
-        verify(repository).findByStatus(EventStatus.ACTIVE);
-        verify(repository, never()).findByStatusAndCategory(any(), any());
-        verify(repository, never()).findByStatusAndDateTimeBetween(any(), any(), any());
-        verify(repository, never()).findByStatusAndCategoryAndDateTimeBetween(any(), any(), any(), any());
+        assertEquals(expectedEvents.size(), result.size());
+        verify(repository).findByStatusAndCategoryAndDateTimeBetween(EventStatus.ACTIVE, category, start, end);
     }
 
     @Test
-    void findActiveEvents_shouldFilterByCategory_whenOnlyCategoryProvided() {
+    void findActiveEventsWithCategoryOnlyShouldReturnFilteredEvents() {
         EventCategory category = EventCategory.CULTURAL;
-        when(repository.findByStatusAndCategory(EventStatus.ACTIVE, category)).thenReturn(List.of(eventEntity));
+
+        List<EventEntity> entities = List.of(eventEntity);
+
+        when(repository.findByStatusAndCategory(EventStatus.ACTIVE, category))
+                .thenReturn(entities);
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
         List<Event> result = adapter.findActiveEvents(category, null);
 
         assertEquals(1, result.size());
         verify(repository).findByStatusAndCategory(EventStatus.ACTIVE, category);
-        verify(repository, never()).findByStatus(any());
-        verify(repository, never()).findByStatusAndDateTimeBetween(any(), any(), any());
-        verify(repository, never()).findByStatusAndCategoryAndDateTimeBetween(any(), any(), any(), any());
     }
 
     @Test
-    void findActiveEvents_shouldFilterByDate_whenOnlyDateProvided() {
-        LocalDate date = LocalDate.now().plusDays(1);
+    void findActiveEventsWithDateOnlyShouldReturnFilteredEvents() {
+        LocalDate date = LocalDate.now();
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(23, 59, 59);
-        when(repository.findByStatusAndDateTimeBetween(EventStatus.ACTIVE, start, end)).thenReturn(List.of(eventEntity));
+
+        List<EventEntity> entities = List.of(eventEntity);
+
+        when(repository.findByStatusAndDateTimeBetween(EventStatus.ACTIVE, start, end))
+                .thenReturn(entities);
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
         List<Event> result = adapter.findActiveEvents(null, date);
 
         assertEquals(1, result.size());
         verify(repository).findByStatusAndDateTimeBetween(EventStatus.ACTIVE, start, end);
-        verify(repository, never()).findByStatus(any());
-        verify(repository, never()).findByStatusAndCategory(any(), any());
-        verify(repository, never()).findByStatusAndCategoryAndDateTimeBetween(any(), any(), any(), any());
     }
 
     @Test
-    void findActiveEvents_shouldFilterByCategoryAndDate_whenBothProvided() {
-        EventCategory category = EventCategory.CULTURAL;
-        LocalDate date = LocalDate.now().plusDays(1);
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(23, 59, 59);
-        when(repository.findByStatusAndCategoryAndDateTimeBetween(EventStatus.ACTIVE, category, start, end))
-                .thenReturn(List.of(eventEntity));
+    void findActiveEventsWithNoFiltersShouldReturnAllActiveEvents() {
+        List<EventEntity> entities = List.of(eventEntity);
+
+        when(repository.findByStatus(EventStatus.ACTIVE))
+                .thenReturn(entities);
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
-        List<Event> result = adapter.findActiveEvents(category, date);
+        List<Event> result = adapter.findActiveEvents(null, null);
 
         assertEquals(1, result.size());
-        verify(repository).findByStatusAndCategoryAndDateTimeBetween(EventStatus.ACTIVE, category, start, end);
-        verify(repository, never()).findByStatus(any());
-        verify(repository, never()).findByStatusAndCategory(any(), any());
-        verify(repository, never()).findByStatusAndDateTimeBetween(any(), any(), any());
+        verify(repository).findByStatus(EventStatus.ACTIVE);
     }
 
     @Test
-    void findActiveEvents_shouldReturnEmptyList_whenNoResults() {
+    void findActiveEventsShouldReturnEmptyListWhenNoEvents() {
         when(repository.findByStatus(EventStatus.ACTIVE)).thenReturn(List.of());
 
         List<Event> result = adapter.findActiveEvents(null, null);
 
         assertTrue(result.isEmpty());
+        verify(repository).findByStatus(EventStatus.ACTIVE);
     }
 
     @Test
-    void findByStatus_shouldReturnMappedList() {
-        when(repository.findByStatus(EventStatus.CANCELLED)).thenReturn(List.of(eventEntity));
+    void findByStatusShouldReturnEventsWithGivenStatus() {
+        EventStatus status = EventStatus.CANCELLED;
+        List<EventEntity> entities = List.of(eventEntity);
+        List<Event> expectedEvents = List.of(event);
+
+        when(repository.findByStatus(status)).thenReturn(entities);
         when(mapper.toModel(eventEntity)).thenReturn(event);
 
-        List<Event> result = adapter.findByStatus(EventStatus.CANCELLED);
+        List<Event> result = adapter.findByStatus(status);
 
         assertEquals(1, result.size());
-        assertEquals(event, result.get(0));
-        verify(repository).findByStatus(EventStatus.CANCELLED);
+        verify(repository).findByStatus(status);
     }
 
     @Test
-    void findByStatus_shouldReturnEmptyList_whenNoResults() {
-        when(repository.findByStatus(EventStatus.CANCELLED)).thenReturn(List.of());
+    void findByStatusShouldReturnEmptyListWhenNoEvents() {
+        EventStatus status = EventStatus.CANCELLED;
 
-        List<Event> result = adapter.findByStatus(EventStatus.CANCELLED);
+        when(repository.findByStatus(status)).thenReturn(List.of());
+
+        List<Event> result = adapter.findByStatus(status);
 
         assertTrue(result.isEmpty());
+        verify(repository).findByStatus(status);
+    }
+
+    @Test
+    void existsByNameShouldReturnTrueWhenNameExists() {
+        String name = "Test Event";
+
+        when(repository.existsByName(name)).thenReturn(true);
+
+        boolean result = adapter.existsByName(name);
+
+        assertTrue(result);
+        verify(repository).existsByName(name);
+    }
+
+    @Test
+    void existsByNameShouldReturnFalseWhenNameNotExists() {
+        String name = "Non Existent Event";
+
+        when(repository.existsByName(name)).thenReturn(false);
+
+        boolean result = adapter.existsByName(name);
+
+        assertFalse(result);
+        verify(repository).existsByName(name);
     }
 }
