@@ -11,7 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -31,7 +31,10 @@ public class EventEntity {
     private String description;
 
     @Field("date_time")
-    private LocalDateTime dateTime;
+    private LocalDate dateTime;
+
+    @Field("start_time")
+    private String startTime;
 
     @Field("duration_minutes")
     private Integer durationMinutes;
@@ -45,24 +48,18 @@ public class EventEntity {
     @Field("type")
     private EventType type;
 
+    @Field("status")
+    private EventStatus status;
+
     @Field("max_capacity")
     private Integer maxCapacity;
 
     @Field("available_capacity")
     private Integer availableCapacity;
 
-    @Field("status")
-    private EventStatus status;
-
     @Field("organizer_id")
     private UUID organizerId;
 
     @Field("qr_code")
     private String qrCode;
-
-    @Field("created_at")
-    private LocalDateTime createdAt;
-
-    @Field("updated_at")
-    private LocalDateTime updatedAt;
 }

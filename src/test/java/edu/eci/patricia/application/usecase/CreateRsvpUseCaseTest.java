@@ -2,10 +2,7 @@ package edu.eci.patricia.application.usecase;
 
 import edu.eci.patricia.application.dto.response.EventResponseRsvp;
 import edu.eci.patricia.application.mapper.EventRsvpMapper;
-import edu.eci.patricia.domain.exceptions.EventCapacityFullException;
-import edu.eci.patricia.domain.exceptions.EventNotActiveException;
-import edu.eci.patricia.domain.exceptions.EventNotFoundException;
-import edu.eci.patricia.domain.exceptions.RsvpAlreadyExistsException;
+import edu.eci.patricia.domain.exceptions.*;
 import edu.eci.patricia.domain.model.Event;
 import edu.eci.patricia.domain.model.EventRsvp;
 import edu.eci.patricia.domain.model.enums.EventCategory;
@@ -16,19 +13,25 @@ import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
 import edu.eci.patricia.domain.ports.out.EventRsvpRepositoryPort;
 import edu.eci.patricia.domain.valueobjects.EventId;
 import edu.eci.patricia.domain.valueobjects.RsvpId;
+import edu.eci.patricia.infrastructure.notification.NotificationServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,52 +46,46 @@ class CreateRsvpUseCaseTest {
     @Mock
     private EventRsvpMapper rsvpMapper;
 
+    @Mock
+    private NotificationServiceClient notificationServiceClient;
+
     @InjectMocks
     private CreateRsvpUseCase createRsvpUseCase;
 
     private UUID eventUUID;
     private UUID studentId;
-    private Event activeOpenEvent;
-    private Event activeCapacityEvent;
-    private EventRsvp savedRsvp;
-    private EventResponseRsvp rsvpResponse;
+    private EventId eventId;
+    private Event openActiveEvent;
+    private Event capacityActiveEvent;
+    private EventResponseRsvp expectedResponse;
 
     @BeforeEach
     void setUp() {
         eventUUID = UUID.randomUUID();
         studentId = UUID.randomUUID();
+        eventId = new EventId(eventUUID);
 
-        activeOpenEvent = Event.builder()
-                .id(new EventId(eventUUID))
-                .name("Open Seminar")
-                .category(EventCategory.CULTURAL)
+        openActiveEvent = Event.builder()
+                .id(eventId)
+                .name("Tech Talk")
+                .dateTime(LocalDate.now().plusDays(5))
+                .startTime(LocalTime.of(10, 0))
                 .type(EventType.OPEN)
                 .status(EventStatus.ACTIVE)
-                .organizerId(UUID.randomUUID())
-                .dateTime(LocalDateTime.now().plusDays(5))
+                .availableCapacity(Integer.MAX_VALUE)
                 .build();
 
-        activeCapacityEvent = Event.builder()
-                .id(new EventId(eventUUID))
+        capacityActiveEvent = Event.builder()
+                .id(eventId)
                 .name("Workshop")
-                .category(EventCategory.ACADEMIC)
+                .dateTime(LocalDate.now().plusDays(5))
+                .startTime(LocalTime.of(14, 0))
                 .type(EventType.WITH_CAPACITY)
-                .maxCapacity(10)
-                .availableCapacity(5)
                 .status(EventStatus.ACTIVE)
-                .organizerId(UUID.randomUUID())
-                .dateTime(LocalDateTime.now().plusDays(5))
+                .availableCapacity(10)
                 .build();
 
-        savedRsvp = EventRsvp.builder()
-                .id(RsvpId.generate())
-                .eventId(new EventId(eventUUID))
-                .studentId(studentId)
-                .status(RsvpStatus.CONFIRMED)
-                .confirmedAt(LocalDateTime.now())
-                .build();
-
-        rsvpResponse = EventResponseRsvp.builder()
+        expectedResponse = EventResponseRsvp.builder()
                 .id(UUID.randomUUID())
                 .eventId(eventUUID)
                 .studentId(studentId)
@@ -97,87 +94,176 @@ class CreateRsvpUseCaseTest {
     }
 
     @Test
-    void shouldCreateRsvpForOpenEventSuccessfully() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeOpenEvent));
-        when(rsvpRepository.findByEventIdAndStudentId(any(EventId.class), eq(studentId))).thenReturn(Optional.empty());
-        when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(savedRsvp);
-        when(rsvpMapper.toDTO(savedRsvp)).thenReturn(rsvpResponse);
+    void execute_newRsvpOpenEvent_createsConfirmedRsvp() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(false);
+        when(rsvpRepository.save(any(EventRsvp.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(rsvpMapper.toDTO(any(EventRsvp.class))).thenReturn(expectedResponse);
 
         EventResponseRsvp result = createRsvpUseCase.execute(eventUUID, studentId);
 
-        assertNotNull(result);
-        assertEquals(studentId, result.getStudentId());
-        assertEquals(RsvpStatus.CONFIRMED, result.getStatus());
-        verify(eventRepository, never()).save(any());
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(RsvpStatus.CONFIRMED);
+        verify(rsvpRepository, times(2)).save(any(EventRsvp.class));
     }
 
     @Test
-    void shouldCreateRsvpForWithCapacityEventAndDecreaseCapacity() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeCapacityEvent));
-        when(rsvpRepository.findByEventIdAndStudentId(any(EventId.class), eq(studentId))).thenReturn(Optional.empty());
-        when(rsvpRepository.save(any(EventRsvp.class))).thenReturn(savedRsvp);
-        when(rsvpMapper.toDTO(savedRsvp)).thenReturn(rsvpResponse);
+    void execute_newRsvpOpenEvent_doesNotDecrementCapacity() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(false);
+        when(rsvpRepository.save(any(EventRsvp.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(rsvpMapper.toDTO(any(EventRsvp.class))).thenReturn(expectedResponse);
 
         createRsvpUseCase.execute(eventUUID, studentId);
 
-        assertEquals(4, activeCapacityEvent.getAvailableCapacity());
-        verify(eventRepository).save(activeCapacityEvent);
+        verify(eventRepository, never()).save(any(Event.class));
     }
 
     @Test
-    void shouldThrowEventNotFoundExceptionWhenEventDoesNotExist() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.empty());
+    void execute_newRsvpWithCapacityEvent_decrementsAvailableCapacity() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(capacityActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(false);
+        when(rsvpRepository.save(any(EventRsvp.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(rsvpMapper.toDTO(any(EventRsvp.class))).thenReturn(expectedResponse);
 
-        assertThrows(EventNotFoundException.class,
-                () -> createRsvpUseCase.execute(eventUUID, studentId));
+        createRsvpUseCase.execute(eventUUID, studentId);
 
-        verify(rsvpRepository, never()).save(any());
+        assertThat(capacityActiveEvent.getAvailableCapacity()).isEqualTo(9);
+        verify(eventRepository).save(capacityActiveEvent);
     }
 
     @Test
-    void shouldThrowEventNotActiveExceptionWhenEventIsCancelled() {
-        activeOpenEvent.setStatus(EventStatus.CANCELLED);
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeOpenEvent));
+    void execute_newRsvp_registersNotificationReminder() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(false);
+        when(rsvpRepository.save(any(EventRsvp.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(rsvpMapper.toDTO(any(EventRsvp.class))).thenReturn(expectedResponse);
 
-        assertThrows(EventNotActiveException.class,
-                () -> createRsvpUseCase.execute(eventUUID, studentId));
+        createRsvpUseCase.execute(eventUUID, studentId);
 
-        verify(rsvpRepository, never()).save(any());
+        ArgumentCaptor<LocalDateTime> dateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(notificationServiceClient).registerEventReminder(
+                eq(studentId),
+                eq(eventUUID),
+                dateCaptor.capture()
+        );
+        assertThat(dateCaptor.getValue()).isEqualTo(
+                LocalDateTime.of(openActiveEvent.getDateTime(), openActiveEvent.getStartTime())
+        );
     }
 
     @Test
-    void shouldThrowRsvpAlreadyExistsExceptionWhenStudentAlreadyRegistered() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeOpenEvent));
-        when(rsvpRepository.findByEventIdAndStudentId(any(EventId.class), eq(studentId)))
-                .thenReturn(Optional.of(savedRsvp));
+    void execute_eventNotFound_throwsEventNotFoundException() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
 
-        assertThrows(RsvpAlreadyExistsException.class,
-                () -> createRsvpUseCase.execute(eventUUID, studentId));
-
-        verify(rsvpRepository, never()).save(any());
+        assertThatThrownBy(() -> createRsvpUseCase.execute(eventUUID, studentId))
+                .isInstanceOf(EventNotFoundException.class)
+                .hasMessageContaining("Event not found");
     }
 
     @Test
-    void shouldThrowEventCapacityFullExceptionWhenNoCapacityAvailable() {
-        activeCapacityEvent.setAvailableCapacity(0);
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeCapacityEvent));
-        when(rsvpRepository.findByEventIdAndStudentId(any(EventId.class), eq(studentId))).thenReturn(Optional.empty());
+    void execute_eventNotActive_throwsEventNotActiveException() {
+        Event cancelledEvent = Event.builder()
+                .id(eventId)
+                .status(EventStatus.CANCELLED)
+                .type(EventType.OPEN)
+                .availableCapacity(Integer.MAX_VALUE)
+                .build();
 
-        assertThrows(EventCapacityFullException.class,
-                () -> createRsvpUseCase.execute(eventUUID, studentId));
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(cancelledEvent));
 
-        verify(rsvpRepository, never()).save(any());
+        assertThatThrownBy(() -> createRsvpUseCase.execute(eventUUID, studentId))
+                .isInstanceOf(EventNotActiveException.class);
     }
 
     @Test
-    void shouldThrowEventCapacityFullExceptionWhenCapacityIsNull() {
-        activeCapacityEvent.setAvailableCapacity(null);
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeCapacityEvent));
-        when(rsvpRepository.findByEventIdAndStudentId(any(EventId.class), eq(studentId))).thenReturn(Optional.empty());
+    void execute_eventAtFullCapacity_throwsEventCapacityFullException() {
+        Event fullEvent = Event.builder()
+                .id(eventId)
+                .status(EventStatus.ACTIVE)
+                .type(EventType.WITH_CAPACITY)
+                .availableCapacity(0)
+                .build();
 
-        assertThrows(EventCapacityFullException.class,
-                () -> createRsvpUseCase.execute(eventUUID, studentId));
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(fullEvent));
 
-        verify(rsvpRepository, never()).save(any());
+        assertThatThrownBy(() -> createRsvpUseCase.execute(eventUUID, studentId))
+                .isInstanceOf(EventCapacityFullException.class)
+                .hasMessageContaining("FULL");
+    }
+
+    @Test
+    void execute_existingConfirmedRsvp_throwsRsvpAlreadyExistsException() {
+        EventRsvp confirmedRsvp = EventRsvp.builder()
+                .id(RsvpId.generate())
+                .eventId(eventId)
+                .studentId(studentId)
+                .status(RsvpStatus.CONFIRMED)
+                .build();
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(true);
+        when(rsvpRepository.findByEventIdAndStudentId(eventUUID, studentId))
+                .thenReturn(Optional.of(confirmedRsvp));
+
+        assertThatThrownBy(() -> createRsvpUseCase.execute(eventUUID, studentId))
+                .isInstanceOf(RsvpAlreadyExistsException.class)
+                .hasMessageContaining(eventUUID.toString());
+    }
+
+    @Test
+    void execute_existingCancelledRsvp_reconfirmsRsvp() {
+        EventRsvp cancelledRsvp = EventRsvp.builder()
+                .id(RsvpId.generate())
+                .eventId(eventId)
+                .studentId(studentId)
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(true);
+        when(rsvpRepository.findByEventIdAndStudentId(eventUUID, studentId))
+                .thenReturn(Optional.of(cancelledRsvp));
+        when(rsvpRepository.save(cancelledRsvp)).thenReturn(cancelledRsvp);
+        when(rsvpMapper.toDTO(cancelledRsvp)).thenReturn(expectedResponse);
+
+        createRsvpUseCase.execute(eventUUID, studentId);
+
+        assertThat(cancelledRsvp.getStatus()).isEqualTo(RsvpStatus.CONFIRMED);
+        verify(rsvpRepository).save(cancelledRsvp);
+    }
+
+    @Test
+    void execute_existingCancelledRsvpWithCapacityEvent_decrementsCapacity() {
+        EventRsvp cancelledRsvp = EventRsvp.builder()
+                .id(RsvpId.generate())
+                .eventId(eventId)
+                .studentId(studentId)
+                .status(RsvpStatus.CANCELLED)
+                .build();
+
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(capacityActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(true);
+        when(rsvpRepository.findByEventIdAndStudentId(eventUUID, studentId))
+                .thenReturn(Optional.of(cancelledRsvp));
+        when(rsvpRepository.save(cancelledRsvp)).thenReturn(cancelledRsvp);
+        when(rsvpMapper.toDTO(cancelledRsvp)).thenReturn(expectedResponse);
+
+        createRsvpUseCase.execute(eventUUID, studentId);
+
+        assertThat(capacityActiveEvent.getAvailableCapacity()).isEqualTo(9);
+        verify(eventRepository).save(capacityActiveEvent);
+    }
+
+    @Test
+    void execute_existingRsvpNotFound_throwsRsvpNotFoundException() {
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(openActiveEvent));
+        when(rsvpRepository.existsByEventIdAndStudentId(eventId, studentId)).thenReturn(true);
+        when(rsvpRepository.findByEventIdAndStudentId(eventUUID, studentId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> createRsvpUseCase.execute(eventUUID, studentId))
+                .isInstanceOf(RsvpNotFoundException.class)
+                .hasMessageContaining("RSVP not found");
     }
 }

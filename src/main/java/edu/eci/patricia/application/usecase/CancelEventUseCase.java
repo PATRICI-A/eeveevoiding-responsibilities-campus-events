@@ -4,14 +4,19 @@ import edu.eci.patricia.domain.exceptions.EventNotActiveException;
 import edu.eci.patricia.domain.exceptions.EventNotFoundException;
 import edu.eci.patricia.domain.exceptions.UnauthorizedOrganizerException;
 import edu.eci.patricia.domain.model.Event;
+import edu.eci.patricia.domain.model.EventRsvp;
 import edu.eci.patricia.domain.model.enums.EventStatus;
 import edu.eci.patricia.domain.ports.in.CancelEventPort;
 import edu.eci.patricia.domain.ports.out.EventRepositoryPort;
+import edu.eci.patricia.domain.ports.out.EventRsvpRepositoryPort;
 import edu.eci.patricia.domain.valueobjects.EventId;
+import edu.eci.patricia.infrastructure.messaging.EventChangePublisher;
+import edu.eci.patricia.infrastructure.messaging.dto.EventChangeEventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,6 +24,8 @@ import java.util.UUID;
 public class CancelEventUseCase implements CancelEventPort {
 
     private final EventRepositoryPort eventRepository;
+    private final EventRsvpRepositoryPort rsvpRepository;
+    private final EventChangePublisher eventChangePublisher;
 
     @Override
     public void execute(UUID eventId, UUID organizerId) {
@@ -26,8 +33,8 @@ public class CancelEventUseCase implements CancelEventPort {
         Event event = eventRepository.findById(new EventId(eventId))
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        if (event.getStatus() != EventStatus.ACTIVE) {
-            throw new EventNotActiveException(eventId.toString());
+        if (event.getStatus() != EventStatus.ACTIVE ) {
+            throw new EventNotActiveException("Can´t cancel no ACTIVE event");
         }
 
         if (!event.getOrganizerId().equals(organizerId)) {
@@ -35,8 +42,18 @@ public class CancelEventUseCase implements CancelEventPort {
         }
 
         event.setStatus(EventStatus.CANCELLED);
-        event.setUpdatedAt(LocalDateTime.now());
+
 
         eventRepository.save(event);
+
+        List<EventRsvp> rsvps = rsvpRepository.findConfirmedByEventId(new EventId(eventId));
+        for (EventRsvp rsvp : rsvps) {
+            eventChangePublisher.publish(EventChangeEventDto.builder()
+                    .targetUserId(rsvp.getStudentId())
+                    .eventId(eventId)
+                    .eventName(event.getName())
+                    .changeDescription("cancelado")
+                    .build());
+        }
     }
 }

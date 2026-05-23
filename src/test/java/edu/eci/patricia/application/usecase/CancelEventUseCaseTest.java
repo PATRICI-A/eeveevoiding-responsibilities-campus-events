@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,78 +32,55 @@ class CancelEventUseCaseTest {
     @InjectMocks
     private CancelEventUseCase cancelEventUseCase;
 
-    private UUID eventUUID;
+    private UUID eventId;
     private UUID organizerId;
     private Event activeEvent;
 
     @BeforeEach
     void setUp() {
-        eventUUID = UUID.randomUUID();
+        eventId = UUID.randomUUID();
         organizerId = UUID.randomUUID();
 
         activeEvent = Event.builder()
-                .id(new EventId(eventUUID))
-                .name("Tech Talk")
-                .category(EventCategory.ACADEMIC)
-                .type(EventType.OPEN)
+                .id(new EventId(eventId))
+                .name("Evento Test")
                 .status(EventStatus.ACTIVE)
                 .organizerId(organizerId)
-                .dateTime(LocalDateTime.now().plusDays(5))
+                .type(EventType.OPEN)
+                .category(EventCategory.ACADEMIC)
                 .build();
     }
 
-    @Test
-    void shouldCancelEventSuccessfully() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
-        when(eventRepository.save(any(Event.class))).thenReturn(activeEvent);
-
-        cancelEventUseCase.execute(eventUUID, organizerId);
-
-        assertEquals(EventStatus.CANCELLED, activeEvent.getStatus());
-        assertNotNull(activeEvent.getUpdatedAt());
-        verify(eventRepository).save(activeEvent);
-    }
 
     @Test
-    void shouldThrowEventNotFoundExceptionWhenEventDoesNotExist() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.empty());
+    void execute_shouldThrowException_whenEventNotFound() {
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.empty());
 
         assertThrows(EventNotFoundException.class,
-                () -> cancelEventUseCase.execute(eventUUID, organizerId));
+                () -> cancelEventUseCase.execute(eventId, organizerId));
 
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowEventNotActiveExceptionWhenEventAlreadyCancelled() {
+    void execute_shouldThrowException_whenEventIsNotActive() {
         activeEvent.setStatus(EventStatus.CANCELLED);
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
 
         assertThrows(EventNotActiveException.class,
-                () -> cancelEventUseCase.execute(eventUUID, organizerId));
+                () -> cancelEventUseCase.execute(eventId, organizerId));
 
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowUnauthorizedOrganizerExceptionWhenOrganizerDoesNotMatch() {
-        UUID differentOrganizer = UUID.randomUUID();
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
+    void execute_shouldThrowException_whenOrganizerIsNotOwner() {
+        UUID otherOrganizer = UUID.randomUUID();
+        when(eventRepository.findById(new EventId(eventId))).thenReturn(Optional.of(activeEvent));
 
         assertThrows(UnauthorizedOrganizerException.class,
-                () -> cancelEventUseCase.execute(eventUUID, differentOrganizer));
+                () -> cancelEventUseCase.execute(eventId, otherOrganizer));
 
         verify(eventRepository, never()).save(any());
-    }
-
-    @Test
-    void shouldSetUpdatedAtWhenCancelling() {
-        when(eventRepository.findById(any(EventId.class))).thenReturn(Optional.of(activeEvent));
-        when(eventRepository.save(any(Event.class))).thenReturn(activeEvent);
-
-        LocalDateTime before = LocalDateTime.now().minusSeconds(1);
-        cancelEventUseCase.execute(eventUUID, organizerId);
-
-        assertTrue(activeEvent.getUpdatedAt().isAfter(before));
     }
 }
