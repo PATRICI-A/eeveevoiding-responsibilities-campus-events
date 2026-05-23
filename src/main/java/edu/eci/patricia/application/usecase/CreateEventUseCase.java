@@ -16,6 +16,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Caso de uso para crear un nuevo evento.
+ * <p>
+ * Valida que el nombre no esté repetido, que los eventos con capacidad tengan
+ * un máximo válido (mínimo 2), y asigna estado ACTIVO, organizador y QR.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CreateEventUseCase implements CreateEventPort {
@@ -23,9 +30,17 @@ public class CreateEventUseCase implements CreateEventPort {
     private final EventRepositoryPort eventRepository;
     private final EventMapper eventMapper;
 
+    /**
+     * Ejecuta la creación de un evento.
+     *
+     * @param request     datos del evento a crear
+     * @param organizerId identificador del organizador propietario
+     * @return el evento creado con sus datos completos (incluyendo ID y QR)
+     * @throws EventDomainException si el nombre ya existe, falta capacidad máxima,
+     *                              o la capacidad es menor a 2
+     */
     @Override
     public EventResponse execute(EventRequest request, UUID organizerId) {
-
 
         if (request.getType() == EventType.WITH_CAPACITY && request.getMaxCapacity() == null) {
             throw new EventDomainException("Max capacity is required for WITH_CAPACITY events");
@@ -46,9 +61,7 @@ public class CreateEventUseCase implements CreateEventPort {
         event.setAvailableCapacity(request.getType() == EventType.WITH_CAPACITY
                 ? request.getMaxCapacity() : null);
 
-
         Event saved = eventRepository.save(event);
-
 
         saved.setQrCode(generateQrCode(saved.getId().getValue()));
         saved = eventRepository.save(saved);
@@ -56,6 +69,12 @@ public class CreateEventUseCase implements CreateEventPort {
         return eventMapper.toDTO(saved);
     }
 
+    /**
+     * Genera un código QR simple basado en el ID del evento.
+     *
+     * @param eventId identificador del evento
+     * @return código QR como string
+     */
     private String generateQrCode(UUID eventId) {
         return "QR-" + eventId;
     }
