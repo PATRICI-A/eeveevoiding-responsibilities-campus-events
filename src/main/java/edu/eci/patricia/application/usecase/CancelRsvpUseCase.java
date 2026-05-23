@@ -21,6 +21,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Caso de uso para cancelar la reserva (RSVP) de un estudiante a un evento.
+ * <p>
+ * Solo permite cancelar reservas en eventos ACTIVOS. Si el evento tiene capacidad limitada,
+ * al cancelar se libera un cupo.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CancelRsvpUseCase implements CancelRsvpPort {
@@ -29,6 +36,17 @@ public class CancelRsvpUseCase implements CancelRsvpPort {
     private final EventRsvpRepositoryPort rsvpRepository;
     private final EventRsvpMapper rsvpMapper;
 
+    /**
+     * Ejecuta la cancelación de una reserva.
+     *
+     * @param eventId   identificador del evento
+     * @param studentId identificador del estudiante que cancela su reserva
+     * @return la reserva actualizada con estado CANCELLED
+     * @throws EventNotFoundException      si el evento no existe
+     * @throws EventNotActiveException     si el evento no está ACTIVO
+     * @throws RsvpNotFoundException       si no existe reserva para el estudiante en ese evento
+     * @throws RsvpAlreadyExistsException  si la reserva ya estaba cancelada previamente
+     */
     @Override
     public EventResponseRsvp execute(UUID eventId, UUID studentId) {
 
@@ -37,7 +55,7 @@ public class CancelRsvpUseCase implements CancelRsvpPort {
         Event event = eventRepository.findById(evId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
-        if (event.getStatus() != EventStatus.ACTIVE ) {
+        if (event.getStatus() != EventStatus.ACTIVE) {
             throw new EventNotActiveException("Can´t modify no ACTIVE event");
         }
 

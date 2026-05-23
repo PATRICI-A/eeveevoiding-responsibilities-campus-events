@@ -21,6 +21,15 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Caso de uso para crear o reactivar una reserva (RSVP) a un evento.
+ * <p>
+ * Si el estudiante no tenía reserva, se crea una nueva (CONFIRMED).
+ * Si tenía una reserva cancelada, se reactiva a CONFIRMED.
+ * Valida que el evento esté ACTIVO y que haya capacidad disponible.
+ * Al confirmar, registra un recordatorio en el servicio de notificaciones.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CreateRsvpUseCase implements CreateRsvpPort {
@@ -30,6 +39,17 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
     private final EventRsvpMapper rsvpMapper;
     private final NotificationServiceClient notificationServiceClient;
 
+    /**
+     * Ejecuta la creación o reactivación de una reserva.
+     *
+     * @param eventId   identificador del evento
+     * @param studentId identificador del estudiante
+     * @return la reserva confirmada
+     * @throws EventNotFoundException      si el evento no existe
+     * @throws EventNotActiveException     si el evento no está ACTIVO
+     * @throws EventCapacityFullException  si no hay cupos disponibles
+     * @throws RsvpAlreadyExistsException  si ya existe una reserva confirmada
+     */
     @Override
     public EventResponseRsvp execute(UUID eventId, UUID studentId) {
 
@@ -38,14 +58,13 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
         Event event = eventRepository.findById(evId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found"));
 
-        if (event.getStatus() != EventStatus.ACTIVE ) {
+        if (event.getStatus() != EventStatus.ACTIVE) {
             throw new EventNotActiveException("Can´t modify no ACTIVE event");
         }
 
         if (event.getAvailableCapacity() == 0) {
             throw new EventCapacityFullException("Event capacity is FULL");
         }
-
 
         if (!rsvpRepository.existsByEventIdAndStudentId(evId, studentId)) {
             EventRsvp rsvp = EventRsvp.builder()
@@ -74,10 +93,9 @@ public class CreateRsvpUseCase implements CreateRsvpPort {
         EventRsvp existingRsvp = rsvpRepository.findByEventIdAndStudentId(eventId, studentId)
                 .orElseThrow(() -> new RsvpNotFoundException("RSVP not found for this event and student"));
 
-
-        if (existingRsvp.getStatus() ==  RsvpStatus.CONFIRMED) {
+        if (existingRsvp.getStatus() == RsvpStatus.CONFIRMED) {
             throw new RsvpAlreadyExistsException("RSVP is already confirmed for event: " + eventId);
-        } else if (existingRsvp.getStatus() ==  RsvpStatus.CANCELLED) {
+        } else if (existingRsvp.getStatus() == RsvpStatus.CANCELLED) {
             existingRsvp.setStatus(RsvpStatus.CONFIRMED);
         }
 

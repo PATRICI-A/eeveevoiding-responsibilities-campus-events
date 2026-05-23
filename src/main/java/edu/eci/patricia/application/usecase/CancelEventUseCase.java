@@ -19,6 +19,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Caso de uso para cancelar un evento.
+ * <p>
+ * Solo permite cancelar eventos en estado ACTIVO y siempre que el organizador
+ * sea el propietario del evento. Al cancelar, notifica a todos los estudiantes
+ * que tenían una reserva confirmada.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CancelEventUseCase implements CancelEventPort {
@@ -27,13 +35,22 @@ public class CancelEventUseCase implements CancelEventPort {
     private final EventRsvpRepositoryPort rsvpRepository;
     private final EventChangePublisher eventChangePublisher;
 
+    /**
+     * Ejecuta la cancelación de un evento.
+     *
+     * @param eventId     identificador del evento a cancelar
+     * @param organizerId identificador del organizador que solicita la cancelación
+     * @throws EventNotFoundException       si el evento no existe
+     * @throws EventNotActiveException      si el evento no está en estado ACTIVO
+     * @throws UnauthorizedOrganizerException si el organizador no es el propietario
+     */
     @Override
     public void execute(UUID eventId, UUID organizerId) {
 
         Event event = eventRepository.findById(new EventId(eventId))
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        if (event.getStatus() != EventStatus.ACTIVE ) {
+        if (event.getStatus() != EventStatus.ACTIVE) {
             throw new EventNotActiveException("Can´t cancel no ACTIVE event");
         }
 
@@ -42,7 +59,6 @@ public class CancelEventUseCase implements CancelEventPort {
         }
 
         event.setStatus(EventStatus.CANCELLED);
-
 
         eventRepository.save(event);
 

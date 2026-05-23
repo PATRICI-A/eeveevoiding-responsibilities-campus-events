@@ -24,6 +24,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Caso de uso para actualizar un evento existente.
+ * <p>
+ * Solo permite modificar eventos ACTIVOS y siempre que el organizador sea el propietario.
+ * Al actualizar, notifica a todos los estudiantes con reserva confirmada sobre el cambio.
+ * Valida que los eventos con capacidad tengan un máximo válido (mínimo 2).
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class UpdateEventUseCase implements UpdateEventPort {
@@ -33,13 +41,25 @@ public class UpdateEventUseCase implements UpdateEventPort {
     private final EventRsvpRepositoryPort rsvpRepository;
     private final EventChangePublisher eventChangePublisher;
 
+    /**
+     * Ejecuta la actualización de un evento.
+     *
+     * @param eventId     identificador del evento a modificar
+     * @param request     nuevos datos del evento
+     * @param organizerId identificador del organizador que solicita el cambio
+     * @return el evento actualizado
+     * @throws EventNotFoundException       si el evento no existe
+     * @throws EventNotActiveException      si el evento no está ACTIVO
+     * @throws UnauthorizedOrganizerException si el organizador no es el propietario
+     * @throws EventDomainException         si los datos de capacidad son inválidos
+     */
     @Override
     public EventResponse execute(UUID eventId, EventUpdateRequest request, UUID organizerId) {
 
         Event event = eventRepository.findById(new EventId(eventId))
                 .orElseThrow(() -> new EventNotFoundException(eventId.toString()));
 
-        if (event.getStatus() != EventStatus.ACTIVE ) {
+        if (event.getStatus() != EventStatus.ACTIVE) {
             throw new EventNotActiveException("Can´t modify no ACTIVE event");
         }
 
@@ -79,8 +99,6 @@ public class UpdateEventUseCase implements UpdateEventPort {
                     .changeDescription("modificado")
                     .build());
         }
-
-
 
         return eventMapper.toDTO(eventRepository.save(event));
     }
