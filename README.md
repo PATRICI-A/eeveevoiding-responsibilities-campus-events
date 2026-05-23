@@ -280,6 +280,67 @@ El dominio permanece completamente aislado de frameworks, bases de datos y depen
 
 ---
 
+### 📊 Diagramas de Secuencia
+
+Un diagrama de secuencia muestra, en orden temporal, cómo interactúan los actores y componentes del sistema mediante mensajes o llamadas.
+
+#### 1. Crear Evento
+
+Muestra el flujo completo de creación: el cliente envía la solicitud al `EventController`, que delega al `CreateEventUseCase`, el cual persiste el evento a través del `EventRepositoryPort` y retorna un `EventResponse` con estado 201.
+
+![]()
+ 
+---
+
+#### 2. Listar Eventos
+
+Describe la consulta de todos los eventos activos con filtros opcionales de categoría y fecha. Si la lista está vacía, retorna 200 con un mensaje; si hay eventos, retorna la lista de `EventResponse`.
+
+![]()
+ 
+---
+
+#### 3. Obtener Evento por ID
+
+Ilustra la búsqueda de un evento específico. Si el repositorio retorna `Optional.empty()`, el use case lanza `EventNotFoundException` → 404. Si existe, el mapper convierte la entidad a `EventResponse` con 200.
+
+![]()
+ 
+---
+
+#### 4. Actualizar Evento
+
+Muestra las validaciones en cadena antes de persistir: verifica existencia del evento (404 si no existe), valida que el estado sea `ACTIVE` (409 si no), comprueba que el organizador sea el dueño (403 si no), y finalmente actualiza y retorna 200.
+
+![]()
+ 
+---
+
+#### 5. Cancelar Evento
+
+Representa el flujo de cancelación: verifica existencia (404), valida estado `ACTIVE` (409), confirma que el organizador sea el titular (403), cambia el estado a `CANCELLED` y persiste retornando 204 No Content.
+
+![]()
+ 
+---
+
+#### 6. Confirmar Asistencia (RSVP)
+
+Describe la lógica completa del RSVP: verifica existencia del evento (404), valida estado `ACTIVE` (409), comprueba si ya existe un RSVP del estudiante (409), valida disponibilidad de cupo para eventos `WITH_CAPACITY` (409), crea el `EventRsvp`, decrementa `availableCapacity` y retorna 201.
+
+![]()
+ 
+---
+
+#### 7. Cancelar Asistencia (RSVP)
+
+Ilustra la cancelación del RSVP: valida existencia del evento (404), busca el RSVP por `eventId` y `studentId` (404 si no existe), verifica que no esté ya cancelado (409), persiste la cancelación y, si el evento es `WITH_CAPACITY`, incrementa `availableCapacity` en 1. Retorna 204 No Content.
+
+![]()
+
+
+---
+
 ## 9. ⚠️ Manejo de Errores
 
 El `GlobalExceptionHandler` (`@RestControllerAdvice`) centraliza todas las excepciones y retorna respuestas JSON uniformes:
