@@ -13,6 +13,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * Caso de uso para obtener un evento por su identificador.
+ * <p>
+ * Solo retorna eventos en estado ACTIVO. Si el evento existe pero no está activo,
+ * se considera como no encontrado.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 public class GetEventByIdUseCase implements GetEventByIdPort {
@@ -20,6 +27,13 @@ public class GetEventByIdUseCase implements GetEventByIdPort {
     private final EventRepositoryPort eventRepository;
     private final EventMapper eventMapper;
 
+    /**
+     * Ejecuta la búsqueda de un evento por ID.
+     *
+     * @param eventId identificador del evento
+     * @return datos del evento para el feed (público)
+     * @throws EventNotFoundException si el evento no existe o no está ACTIVO
+     */
     @Override
     public EventFeedResponse execute(UUID eventId) {
         return eventRepository.findById(new EventId(eventId))
