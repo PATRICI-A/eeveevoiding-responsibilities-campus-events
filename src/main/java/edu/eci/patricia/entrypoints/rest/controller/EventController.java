@@ -25,6 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * REST controller for event management operations.
+ * <p>
+ * Provides endpoints for creating, reading, updating, and canceling university events.
+ * All endpoints require JWT authentication with appropriate roles
+ * (organizer for write operations, student/organizer for read operations).
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
@@ -43,6 +51,18 @@ public class EventController {
     private final CancelEventPort cancelEventPort;
     private final GetEventByIdPort getEventByIdPort;
 
+    /**
+     * Creates a new university event.
+     * <p>
+     * Validates that the event date is in the future, duration is at least 15 minutes,
+     * and the event name is unique. The organizer ID is extracted from the JWT token.
+     * Upon successful creation, a QR code is generated for attendance tracking.
+     * </p>
+     *
+     * @param request     the event creation payload
+     * @param organizerId the organizer ID extracted from JWT token
+     * @return the created event with generated ID, QR code, and metadata
+     */
     @PostMapping
     @Operation(
             operationId = "createEvent",
@@ -73,13 +93,7 @@ public class EventController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = """
-                            Validation error. One or more required fields are missing or violate constraints:
-                            - Past event date
-                            - Name too long (>100 chars)
-                            - Duration < 15 minutes
-                            - Invalid category or type
-                            - Capacity < 1""",
+                    description = "Validation error. One or more required fields are missing or violate constraints.",
                     content = @Content(schema = @Schema(example = "{\"status\": 400, \"timestamp\": \"2025-06-15T10:00:00\", \"errors\": {\"dateTime\": \"Event date must be in the future\"}}"))
             ),
             @ApiResponse(
@@ -100,16 +114,7 @@ public class EventController {
     })
     public ResponseEntity<EventResponse> create(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = """
-                            Event creation payload. All fields are required unless marked optional.
-                            - `name`: Event title (max 100 chars)
-                            - `description`: Detailed event description
-                            - `dateTime`: ISO-8601 date-time (must be future)
-                            - `durationMinutes`: Event duration in minutes (min 15)
-                            - `location`: Venue or room name (max 200 chars)
-                            - `category`: ACADEMIC, CULTURAL, SPORTS, etc.
-                            - `type`: WORKSHOP, LECTURE, CONCERT, etc.
-                            - `maxCapacity`: Optional attendance limit (default unlimited)""",
+                    description = "Event creation payload. All fields are required unless marked optional.",
                     required = true,
                     content = @Content(schema = @Schema(implementation = EventRequest.class))
             )
@@ -123,6 +128,16 @@ public class EventController {
                 .body(createEventPort.execute(request, UUID.fromString(organizerId)));
     }
 
+    /**
+     * Retrieves a paginated feed of active events with optional filters.
+     * <p>
+     * Supports filtering by category and date. Returns an empty message
+     * instead of an empty list for better UX.
+     * </p>
+     *
+     * @param filters the filter parameters (category and date, both optional)
+     * @return a list of active events or a message if none are found
+     */
     @GetMapping
     @Operation(
             operationId = "getEventFeed",
@@ -183,6 +198,19 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * Updates an existing event.
+     * <p>
+     * Only the original organizer can update the event. All fields are required
+     * (no partial updates). When updated, all confirmed RSVP holders are notified
+     * about the change via the messaging system.
+     * </p>
+     *
+     * @param eventId     the UUID of the event to update
+     * @param request     the event update payload
+     * @param organizerId the organizer ID extracted from JWT token
+     * @return the updated event details
+     */
     @PutMapping("/{eventId}")
     @Operation(
             operationId = "updateEvent",
@@ -256,6 +284,16 @@ public class EventController {
         return ResponseEntity.ok(updateEventPort.execute(eventId, request, UUID.fromString(organizerId)));
     }
 
+    /**
+     * Retrieves a single event by its ID.
+     * <p>
+     * Returns event details for any event status. This endpoint is accessible
+     * to both students and organizers.
+     * </p>
+     *
+     * @param eventId the UUID of the event to retrieve
+     * @return the event feed response DTO
+     */
     @GetMapping("/{eventId}")
     @Operation(
             operationId = "getEventById",
@@ -305,6 +343,18 @@ public class EventController {
         return ResponseEntity.ok(getEventByIdPort.execute(eventId));
     }
 
+    /**
+     * Cancels an active event.
+     * <p>
+     * Only the original organizer can cancel the event. Once cancelled,
+     * the event is no longer visible in the public feed and no new RSVPs
+     * can be made. All confirmed RSVP holders are notified.
+     * </p>
+     *
+     * @param eventId     the UUID of the event to cancel
+     * @param organizerId the organizer ID extracted from JWT token
+     * @return HTTP 204 No Content on success
+     */
     @PatchMapping("/{eventId}")
     @Operation(
             operationId = "cancelEvent",

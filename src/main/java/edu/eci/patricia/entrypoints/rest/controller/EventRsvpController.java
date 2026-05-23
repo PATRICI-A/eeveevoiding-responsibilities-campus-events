@@ -28,6 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * REST controller for managing student RSVPs (event attendance registrations).
+ * <p>
+ * Provides endpoints for students to confirm or cancel their attendance to events,
+ * and to retrieve their personal agenda of confirmed events.
+ * All endpoints require JWT authentication with the ESTUDIANTE role.
+ * </p>
+ */
 @RestController
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
@@ -46,6 +54,22 @@ public class EventRsvpController {
     private final EventRsvpMapper rsvpMapper;
     private final EventRsvpRepositoryPort eventRsvpRepository;
 
+    /**
+     * Confirms or cancels a student's attendance to an event.
+     * <p>
+     * Supports two actions:
+     * <ul>
+     *   <li>CONFIRM - Registers the student for the event (subject to capacity and status)</li>
+     *   <li>CANCEL - Withdraws a previously confirmed attendance</li>
+     * </ul>
+     * The student ID is extracted from the JWT token.
+     * </p>
+     *
+     * @param eventId   the UUID of the event
+     * @param action    the action to perform (CONFIRM or CANCEL)
+     * @param studentId the student ID extracted from JWT token
+     * @return the RSVP record with updated status
+     */
     @PostMapping("/{eventId}/rsvp")
     @Operation(
             operationId = "manageRsvp",
@@ -150,6 +174,16 @@ public class EventRsvpController {
         }
     }
 
+    /**
+     * Retrieves the authenticated student's personal event agenda.
+     * <p>
+     * Returns all events for which the student has a confirmed RSVP
+     * and that are still active. Acts as the "My Events" view in the UI.
+     * </p>
+     *
+     * @param studentId the student ID extracted from JWT token
+     * @return a list of events the student is attending, or a message if empty
+     */
     @GetMapping("/rsvp/agenda")
     @Operation(
             operationId = "getStudentAgenda",
