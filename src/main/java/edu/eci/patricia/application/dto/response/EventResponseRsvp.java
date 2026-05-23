@@ -19,5 +19,4 @@ public class EventResponseRsvp {
     private UUID eventId;
     private UUID studentId;
     private RsvpStatus status;
-    private LocalDateTime confirmedAt;
 }

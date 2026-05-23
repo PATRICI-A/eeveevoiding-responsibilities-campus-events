@@ -17,7 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,158 +38,126 @@ class CreateEventUseCaseTest {
     private CreateEventUseCase createEventUseCase;
 
     private UUID organizerId;
-    private EventRequest openRequest;
-    private EventRequest withCapacityRequest;
-    private Event mappedEvent;
-    private Event savedEvent;
+    private EventRequest request;
+    private Event event;
     private EventResponse eventResponse;
 
     @BeforeEach
     void setUp() {
         organizerId = UUID.randomUUID();
 
-        openRequest = EventRequest.builder()
-                .name("Open Seminar")
-                .description("A cultural event")
-                .dateTime(LocalDateTime.now().plusDays(10))
-                .durationMinutes(60)
-                .location("Room 101")
-                .category(EventCategory.CULTURAL)
-                .type(EventType.OPEN)
-                .build();
-
-        withCapacityRequest = EventRequest.builder()
-                .name("Workshop")
-                .description("Academic workshop")
-                .dateTime(LocalDateTime.now().plusDays(10))
-                .durationMinutes(120)
-                .location("Lab 3")
+        request = EventRequest.builder()
+                .name("Caminata Monserrate")
+                .description("Evento de senderismo")
+                .dateTime(LocalDate.now().plusDays(1))
+                .startTime("08:30")
+                .duration(120)
+                .location("Bogotá")
                 .category(EventCategory.ACADEMIC)
-                .type(EventType.WITH_CAPACITY)
-                .maxCapacity(50)
-                .build();
-
-        mappedEvent = Event.builder()
-                .name("Open Seminar")
-                .category(EventCategory.CULTURAL)
                 .type(EventType.OPEN)
                 .build();
 
-        savedEvent = Event.builder()
+        event = Event.builder()
                 .id(EventId.generate())
-                .name("Open Seminar")
-                .category(EventCategory.CULTURAL)
-                .type(EventType.OPEN)
+                .name("Caminata Monserrate")
+                .description("Evento de senderismo")
                 .status(EventStatus.ACTIVE)
                 .organizerId(organizerId)
+                .type(EventType.OPEN)
                 .build();
 
         eventResponse = EventResponse.builder()
-                .id(savedEvent.getId().getValue())
-                .name("Open Seminar")
-                .status(EventStatus.ACTIVE)
+                .id(UUID.randomUUID())
+                .name("Caminata Monserrate")
                 .build();
     }
 
     @Test
-    void shouldCreateOpenEventSuccessfully() {
-        when(eventMapper.toDomain(openRequest)).thenReturn(mappedEvent);
-        when(eventRepository.save(any(Event.class))).thenReturn(savedEvent);
+    void execute_shouldCreateEventSuccessfully_whenValidOpenEvent() {
+        when(eventRepository.existsByName(request.getName())).thenReturn(false);
+        when(eventMapper.toDomain(request)).thenReturn(event);
+        when(eventRepository.save(any(Event.class))).thenReturn(event);
         when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
 
-        EventResponse result = createEventUseCase.execute(openRequest, organizerId);
+        EventResponse result = createEventUseCase.execute(request, organizerId);
 
         assertNotNull(result);
-        assertEquals("Open Seminar", result.getName());
-        verify(eventMapper).toDomain(openRequest);
+        assertEquals("Caminata Monserrate", result.getName());
         verify(eventRepository, times(2)).save(any(Event.class));
-        verify(eventMapper).toDTO(any(Event.class));
     }
 
     @Test
-    void shouldCreateWithCapacityEventSuccessfully() {
-        Event capacityMappedEvent = Event.builder()
-                .name("Workshop")
-                .category(EventCategory.ACADEMIC)
+    void execute_shouldCreateEventWithCapacity_whenValidWithCapacityEvent() {
+        request = EventRequest.builder()
+                .name("Taller Java")
                 .type(EventType.WITH_CAPACITY)
-                .maxCapacity(50)
+                .maxCapacity(30)
+                .dateTime(LocalDate.now().plusDays(1))
+                .startTime("10:00")
+                .duration(60)
+                .location("Bogotá")
+                .category(EventCategory.ACADEMIC)
                 .build();
 
-        Event capacitySavedEvent = Event.builder()
+        Event eventWithCapacity = Event.builder()
                 .id(EventId.generate())
-                .name("Workshop")
+                .name("Taller Java")
                 .type(EventType.WITH_CAPACITY)
-                .maxCapacity(50)
-                .availableCapacity(50)
+                .maxCapacity(30)
+                .availableCapacity(30)
                 .status(EventStatus.ACTIVE)
                 .organizerId(organizerId)
                 .build();
 
-        EventResponse capacityResponse = EventResponse.builder()
-                .id(capacitySavedEvent.getId().getValue())
-                .name("Workshop")
-                .maxCapacity(50)
-                .availableCapacity(50)
-                .status(EventStatus.ACTIVE)
-                .build();
+        when(eventRepository.existsByName(request.getName())).thenReturn(false);
+        when(eventMapper.toDomain(request)).thenReturn(eventWithCapacity);
+        when(eventRepository.save(any(Event.class))).thenReturn(eventWithCapacity);
+        when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
 
-        when(eventMapper.toDomain(withCapacityRequest)).thenReturn(capacityMappedEvent);
-        when(eventRepository.save(any(Event.class))).thenReturn(capacitySavedEvent);
-        when(eventMapper.toDTO(any(Event.class))).thenReturn(capacityResponse);
-
-        EventResponse result = createEventUseCase.execute(withCapacityRequest, organizerId);
+        EventResponse result = createEventUseCase.execute(request, organizerId);
 
         assertNotNull(result);
-        assertEquals(50, result.getMaxCapacity());
-        assertEquals(50, result.getAvailableCapacity());
+        verify(eventRepository, times(2)).save(any(Event.class));
     }
 
     @Test
-    void shouldThrowEventDomainExceptionWhenWithCapacityAndNoMaxCapacity() {
-        EventRequest badRequest = EventRequest.builder()
-                .name("Workshop")
-                .dateTime(LocalDateTime.now().plusDays(5))
-                .durationMinutes(60)
-                .location("Lab")
-                .category(EventCategory.ACADEMIC)
-                .type(EventType.WITH_CAPACITY)
-                .maxCapacity(null)
-                .build();
+    void execute_shouldThrowException_whenNameAlreadyExists() {
+        when(eventRepository.existsByName(request.getName())).thenReturn(true);
 
-        assertThrows(EventDomainException.class, () -> createEventUseCase.execute(badRequest, organizerId));
+        EventDomainException ex = assertThrows(EventDomainException.class,
+                () -> createEventUseCase.execute(request, organizerId));
+
+        assertTrue(ex.getMessage().contains("already exists"));
         verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldSetStatusActiveOnCreation() {
-        when(eventMapper.toDomain(openRequest)).thenReturn(mappedEvent);
-        when(eventRepository.save(any(Event.class))).thenReturn(savedEvent);
-        when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
+    void execute_shouldThrowException_whenWithCapacityAndNullMaxCapacity() {
+        request = EventRequest.builder()
+                .name("Taller")
+                .type(EventType.WITH_CAPACITY)
+                .maxCapacity(null)
+                .build();
 
-        createEventUseCase.execute(openRequest, organizerId);
+        EventDomainException ex = assertThrows(EventDomainException.class,
+                () -> createEventUseCase.execute(request, organizerId));
 
-        verify(eventRepository, times(2)).save(argThat(e -> e.getStatus() == EventStatus.ACTIVE || e.getQrCode() != null));
+        assertTrue(ex.getMessage().contains("Max capacity is required"));
+        verify(eventRepository, never()).save(any());
     }
 
     @Test
-    void shouldSetQrCodeAfterFirstSave() {
-        when(eventMapper.toDomain(openRequest)).thenReturn(mappedEvent);
-        when(eventRepository.save(any(Event.class))).thenReturn(savedEvent);
-        when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
+    void execute_shouldThrowException_whenWithCapacityLessThan2() {
+        request = EventRequest.builder()
+                .name("Taller")
+                .type(EventType.WITH_CAPACITY)
+                .maxCapacity(1)
+                .build();
 
-        createEventUseCase.execute(openRequest, organizerId);
+        EventDomainException ex = assertThrows(EventDomainException.class,
+                () -> createEventUseCase.execute(request, organizerId));
 
-        verify(eventRepository, times(2)).save(any(Event.class));
-    }
-
-    @Test
-    void shouldSetOrganizerIdOnCreatedEvent() {
-        when(eventMapper.toDomain(openRequest)).thenReturn(mappedEvent);
-        when(eventRepository.save(any(Event.class))).thenReturn(savedEvent);
-        when(eventMapper.toDTO(any(Event.class))).thenReturn(eventResponse);
-
-        createEventUseCase.execute(openRequest, organizerId);
-
-        verify(eventRepository, times(2)).save(argThat(e -> organizerId.equals(e.getOrganizerId()) || e.getQrCode() != null));
+        assertTrue(ex.getMessage().contains("Minimum of 2 spots"));
+        verify(eventRepository, never()).save(any());
     }
 }

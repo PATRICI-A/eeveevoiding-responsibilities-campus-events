@@ -19,8 +19,6 @@ public class EventRsvp {
     private EventId eventId;
     private UUID studentId;
     private RsvpStatus status;
-    private LocalDateTime confirmedAt;
-    private LocalDateTime cancelledAt;
 }
 
 

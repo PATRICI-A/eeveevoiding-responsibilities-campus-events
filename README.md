@@ -276,8 +276,6 @@ El dominio permanece completamente aislado de frameworks, bases de datos y depen
 
 ### Diagrama de Despliegue
 
-![](https://github.com/PATRICI-A/eeveevoiding-responsibilities-campus-events/blob/feat/readme/docs/UML/DiagramaDespliegue.png)
-
 ---
 
 ### 📊 Diagramas de Secuencia
@@ -796,3 +794,7 @@ El microservicio está desplegado en **Azure App Service** dentro del Resource G
 > 💡 **M09 — Eventos Universitarios** gestiona el ciclo de vida completo de los eventos institucionales de la ECI, conectando organizadores y estudiantes de forma fluida y confiable.
 
 **🎓 Escuela Colombiana de Ingeniería Julio Garavito**
+
+---
+
+## 13. 🤝 Contribuciones y Metodología
